@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operation: Babyshower PoC</title>
+    <style>
+        :root {
+            --bg-color: #121214;
+            --card-bg: #1a1a1e;
+            --accent: #ff9f43;
+            --text: #eeeeee;
+            --success: #2ed573;
+            --error: #ff4757;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            box-sizing: border-box;
+        }
+        h1, h2 { color: var(--accent); text-align: center; margin-top: 0; }
+        .screen { display: none; }
+        .active { display: block; }
+        .btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+        }
+        .btn-secondary {
+            background: #333;
+            color: #fff;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            background: #2a2a30;
+            border: 2px solid #444;
+            color: #fff;
+            font-size: 16px;
+            border-radius: 6px;
+            box-sizing: border-box;
+            margin-top: 10px;
+        }
+        input:focus { border-color: var(--accent); outline: none; }
+        .box {
+            background: #222;
+            padding: 15px;
+            border-left: 4px solid var(--accent);
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .feedback {
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .success-text { color: var(--success); }
+        .error-text { color: var(--error); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div id="lobby-screen" class="screen active">
+        <h1>Vem är du?</h1>
+        <p style="text-align: center;">Välj din roll för att starta detta PoC:</p>
+        <button class="btn" onclick="switchScreen('pappa-screen')">🕵️‍♂️ Jag är PAPPAN</button>
+        <button class="btn btn-secondary" onclick="switchScreen('ganget-screen')">👥 Vi är GÄNGET</button>
+    </div>
+
+    <div id="pappa-screen" class="screen">
+        <h2>Pappans Skärm</h2>
+        <div class="box">
+            <strong>🔒 DÖRRKOD KRÄVS</strong><br><br>
+            Du står utanför BB. För att öppna dörren måste du samarbeta med gänget.
+            <br><br>
+            Koden räknas ut så här:<br>
+            <strong>[Årtal då din favorit-brädspelsdesigner föddes] - [Rumsnumret som gänget ser]</strong>
+        </div>
+        <button class="btn btn-secondary" onclick="switchScreen('lobby-screen')">Tillbaka till start</button>
+    </div>
+
+    <div id="ganget-screen" class="screen">
+        <h2>Gängets Skärm</h2>
+        <div class="box">
+            <strong>🏥 Databasen hackad</strong><br><br>
+            Ni har hittat pappans rumsnummer på BB: <span style="color: var(--accent); font-size: 20px; font-weight: bold;">402</span>.
+            <br><br>
+            Ge detta nummer till pappan så han kan räkna ut koden!
+        </div>
+        
+        <label for="code-input">Mata in pappans slutkod här:</label>
+        <input type="number" id="code-input" placeholder="T.ex. 1930">
+        <button class="btn" onclick="verifyCode()">Verifiera Kod</button>
+        
+        <div id="feedback" class="feedback"></div>
+    </div>
+
+    <div id="victory-screen" class="screen">
+        <h2 class="success-text">🎉 MYSTERIET LÖST!</h2>
+        <div class="box" style="border-color: var(--success); text-align: center;">
+            <h3>Snyggt samarbete!</h3>
+            <p>Dörren till BB är öppen. Den stora presenten finns gömd i garderoben i hallen!</p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function switchScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    function verifyCode() {
+        const input = document.getElementById('code-input').value;
+        const feedback = document.getElementById('feedback');
+        
+        if (input === '1930') {
+            switchScreen('victory-screen');
+        } else {
+            feedback.innerHTML = '<span class="error-text">❌ Fel kod! Försök igen.</span>';
+        }
+    }
+</script>
+
+</body>
+</html>
