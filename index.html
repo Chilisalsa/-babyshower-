@@ -1,45 +1,45 @@
-<!DOCTYPE html>
-<html lang="sv">
+<!DOCTYPE html><html lang="sv">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Operation: Babyshower PoC</title>
+    <title>Operation: Hämta Bebisen</title>
     <style>
         :root {
-            --bg-color: #121214;
-            --card-bg: #1a1a1e;
+            --bg-color: #0f1115;
+            --card-bg: #161920;
             --accent: #ff9f43;
-            --text: #eeeeee;
+            --text: #e2e8f0;
             --success: #2ed573;
             --error: #ff4757;
+            --room-bg: #1f242e;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
             color: var(--text);
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
         .container {
             width: 100%;
-            max-width: 500px;
+            max-width: 600px;
             background: var(--card-bg);
-            padding: 25px;
+            padding: 20px;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
             box-sizing: border-box;
         }
-        h1, h2 { color: var(--accent); text-align: center; margin-top: 0; }
+        h1, h2, h3 { color: var(--accent); text-align: center; margin-top: 0; }
         .screen { display: none; }
         .active { display: block; }
         .btn {
             background: var(--accent);
             color: #000;
             border: none;
-            padding: 12px 20px;
+            padding: 14px 20px;
             font-size: 16px;
             font-weight: bold;
             border-radius: 6px;
@@ -47,86 +47,142 @@
             width: 100%;
             margin-top: 15px;
         }
-        .btn-secondary {
-            background: #333;
-            color: #fff;
-        }
+        .btn-secondary { background: #334155; color: #fff; margin-top: 10px; }
+        .btn-room { background: #475569; color: #fff; margin: 5px 0; }
         input {
             width: 100%;
             padding: 12px;
-            background: #2a2a30;
-            border: 2px solid #444;
+            background: #0f1115;
+            border: 2px solid #334155;
             color: #fff;
             font-size: 16px;
             border-radius: 6px;
             box-sizing: border-box;
-            margin-top: 10px;
+            margin: 10px 0;
         }
         input:focus { border-color: var(--accent); outline: none; }
         .box {
-            background: #222;
+            background: #1e293b;
             padding: 15px;
             border-left: 4px solid var(--accent);
             margin: 15px 0;
             border-radius: 4px;
+            line-height: 1.5;
         }
-        .feedback {
-            margin-top: 15px;
-            font-weight: bold;
-            text-align: center;
-        }
+        .lucktext { font-size: 16px; line-height: 2; background: #0f1115; padding: 15px; border-radius: 8px; border: 1px dashed #475569; }
+        .blank { color: var(--accent); font-weight: bold; border-bottom: 2px dashed var(--accent); padding: 0 5px; }
+        .feedback { margin-top: 10px; font-weight: bold; text-align: center; }
         .success-text { color: var(--success); }
         .error-text { color: var(--error); }
+        .grid-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
     </style>
 </head>
 <body>
 
+
 <div class="container">
     
     <div id="lobby-screen" class="screen active">
-        <h1>Vem är du?</h1>
-        <p style="text-align: center;">Välj din roll för att starta detta PoC:</p>
-        <button class="btn" onclick="switchScreen('pappa-screen')">🕵️‍♂️ Jag är PAPPAN</button>
-        <button class="btn btn-secondary" onclick="switchScreen('ganget-screen')">👥 Vi är GÄNGET</button>
+        <h1>STATION: DETEKTIV</h1>
+        <p style="text-align: center; color: #94a3b8;">Välj din enhet för kvällens mysterium:</p>
+        <button class="btn" onclick="switchScreen('pappa-screen')">🕵️‍♂️ PAPPANS SKÄRM (Visas på TV/Huvudenhet)</button>
+        <button class="btn btn-secondary" onclick="switchScreen('ganget-menu-screen')">👥 GÄNGETS MOBILER (Dela upp er i lag)</button>
     </div>
+
 
     <div id="pappa-screen" class="screen">
-        <h2>Pappans Skärm</h2>
-        <div class="box">
-            <strong>🔒 DÖRRKOD KRÄVS</strong><br><br>
-            Du står utanför BB. För att öppna dörren måste du samarbeta med gänget.
-            <br><br>
-            Koden räknas ut så här:<br>
-            <strong>[Årtal då din favorit-brädspelsdesigner föddes] - [Rumsnumret som gänget ser]</strong>
+        <h2>The Case of the Crying Baby</h2>
+        <p style="color: #94a3b8; font-size: 14px;">Pappan måste fylla i sanningen med hjälp av lagens dolda information:</p>
+        
+        <div class="lucktext">
+            Efter att ha backat bilen rakt in i en <span class="blank">[SAK FRÅN CAFETERIAN]</span> kl <span class="blank">[TID FRÅN NEONATALEN]</span>, sprang pappan till fel våning. Han stoppades i dörren av Syster <span class="blank">[NAMN FRÅN NEONATALEN]</span> som krävde att få se hans legitimation. Men pappan hade tappat sitt ID-kort i en skål med <span class="blank">[SUBSTANS FRÅN CAFETERIAN]</span>. Slutkoden för att låsa upp BB-dörren är: <span class="blank">[KODEN FRÅN FÖRRÅDET]</span>.
         </div>
-        <button class="btn btn-secondary" onclick="switchScreen('lobby-screen')">Tillbaka till start</button>
+
+
+        <div class="box">
+            <strong>Instruktioner till Pappan:</strong><br>
+            Du har inga ledtrådar själv. Du måste förhöra de tre lagen (Neonatalen, Cafeterian och Förrådet) och få dem att lösa sina digitala pussel för att ge dig orden!
+        </div>
+        <button class="btn btn-secondary" onclick="switchScreen('lobby-screen')">Meny</button>
     </div>
 
-    <div id="ganget-screen" class="screen">
-        <h2>Gängets Skärm</h2>
-        <div class="box">
-            <strong>🏥 Databasen hackad</strong><br><br>
-            Ni har hittat pappans rumsnummer på BB: <span style="color: var(--accent); font-size: 20px; font-weight: bold;">402</span>.
-            <br><br>
-            Ge detta nummer till pappan så han kan räkna ut koden!
+
+    <div id="ganget-menu-screen" class="screen">
+        <h2>Sjukhusets Sektioner</h2>
+        <p style="text-align: center; color: #94a3b8;">Dela upp er i 3 lag. Varje lag väljer ett rum:</p>
+        <div class="grid-buttons">
+            <button class="btn btn-room" onclick="switchScreen('room-neonatalen')">👶 Rum 1: Neonatalen</button>
+            <button class="btn btn-room" onclick="switchScreen('room-cafeterian')">☕ Rum 2: BB-Cafeterian</button>
+            <button class="btn btn-room" onclick="switchScreen('room-forradet')">📦 Rum 3: Förrådet</button>
         </div>
-        
-        <label for="code-input">Mata in pappans slutkod här:</label>
-        <input type="number" id="code-input" placeholder="T.ex. 1930">
-        <button class="btn" onclick="verifyCode()">Verifiera Kod</button>
-        
-        <div id="feedback" class="feedback"></div>
+        <button class="btn btn-secondary" onclick="switchScreen('lobby-screen')">Meny</button>
     </div>
+
+
+    <div id="room-neonatalen" class="screen">
+        <h2>👶 Rum 1: Neonatalen</h2>
+        <div class="box">
+            <strong>Logg - Syster Barbro:</strong><br>
+            "En förvirrad blivande pappa sprang förbi här i panik precis efter att fikat tog slut kl <span style="color:var(--accent)">19:15</span>. Jag tror han letade efter Syster <span style="color:var(--accent)">Agda</span>."
+            <br><br>
+            <em>Ge tiden och namnet till Pappan!</em>
+        </div>
+        <div class="box" style="background: #0f1115;">
+            <strong>🔒 Kryptering:</strong><br>
+            Syster Barbros favoritsiffra är <span style="color:var(--accent); font-weight:bold;">7</span>. Cafeterian (Rum 2) behöver denna siffra för att låsa upp sitt system!
+        </div>
+        <button class="btn btn-secondary" onclick="switchScreen('ganget-menu-screen')">Tillbaka till rummen</button>
+    </div>
+
+
+    <div id="room-cafeterian" class="screen">
+        <h2>☕ Rum 2: BB-Cafeterian</h2>
+        <div class="box">
+            <strong>Hittat Kvitto på golvet:</strong><br>
+            "1x Parkeringsbot (Krock med <span style="color:var(--accent)">Barnvagn</span> på parkeringen)."
+            <br><br>
+            <em>Berätta för pappan vad han krockade med!</em>
+        </div>
+
+
+        <div class="box">
+            <strong>🔒 Låst Kassaskrin:</strong><br>
+            För att hitta nästa ledtråd måste ni mata in [Barbros favoritsiffra från Rum 1] multiplicerat med 5.
+        </div>
+        <input type="number" id="cafe-input" placeholder="Mata in koden...">
+        <button class="btn" onclick="checkCafe()">Öppna Skrin</button>
+        <div id="cafe-feedback" class="feedback"></div>
+        
+        <button class="btn btn-secondary" onclick="switchScreen('ganget-menu-screen')">Tillbaka till rummen</button>
+    </div>
+
+
+    <div id="room-forradet" class="screen">
+        <h2>📦 Rum 3: Förrådet</h2>
+        <div class="box">
+            <strong>🔒 Huvuddatorn kräver tidsstämpel:</strong><br>
+            För att starta systemet måste ni mata in den exakta tidpunkt då pappan dök upp på sjukhuset (Rum 1 vet detta, t.ex. 19:15).
+        </div>
+        <input type="text" id="storage-input" placeholder="TT:MM">
+        <button class="btn" onclick="checkStorage()">Starta Dator</button>
+        <div id="storage-feedback" class="feedback"></div>
+        
+        <button class="btn btn-secondary" onclick="switchScreen('ganget-menu-screen')">Tillbaka till rummen</button>
+    </div>
+
 
     <div id="victory-screen" class="screen">
-        <h2 class="success-text">🎉 MYSTERIET LÖST!</h2>
+        <h2 class="success-text">🎉 OPERATION LYCKAD!</h2>
         <div class="box" style="border-color: var(--success); text-align: center;">
-            <h3>Snyggt samarbete!</h3>
-            <p>Dörren till BB är öppen. Den stora presenten finns gömd i garderoben i hallen!</p>
+            <h3>Snyggt detektivarbete!</h3>
+            <p>Lucktexten är komplett, dörrarna är upplåsta och pappan har hittat rätt.</p>
+            <p style="font-size: 20px; font-weight: bold; color: var(--accent);">Gå nu till garderoben i hallen och hämta er belöning! 🎁</p>
         </div>
     </div>
 
+
 </div>
+
 
 <script>
     function switchScreen(screenId) {
@@ -134,17 +190,44 @@
         document.getElementById(screenId).classList.add('active');
     }
 
-    function verifyCode() {
-        const input = document.getElementById('code-input').value;
-        const feedback = document.getElementById('feedback');
+
+    function checkCafe() {
+        const input = document.getElementById('cafe-input').value;
+        const feedback = document.getElementById('cafe-feedback');
+        // 7 * 5 = 35
+        if (input === '35') {
+            feedback.innerHTML = '<div class="success-text">🔓 SKRIN ÖPPNAT!<br>Hittade en kladdig lapp där det står: "Tappade ID-kortet i en skål med <strong>Barnmat</strong>." (Berätta detta för pappan!)<br><br><strong>Viktigt till Rum 3:</strong> Siffran ni behöver till datorn är 1000.</div>';
+        } else {
+            feedback.innerHTML = '<span class="error-text">❌ Fel kod. Ledtråd: Prata med Rum 1!</span>';
+        }
+    }
+
+
+    function checkStorage() {
+        const input = document.getElementById('storage-input').value.trim();
+        const feedback = document.getElementById('storage-feedback');
         
-        if (input === '1930') {
+        if (input === '19:15') {
+            feedback.innerHTML = '<div class="success-text">🖥️ DATOR IGÅNG!<br>För att få fram slutkoden till pappan, addera 35 (från Rum 2:s skrin) med siffran Rum 2 just fick ur sitt skrin (1000). Jag kräver slutsiffran!</div>' +
+                                 '<input type="number" id="final-code-input" placeholder="Mata in slutsiffran...">' +
+                                 '<button class="btn" onclick="checkFinalCode()">Generera Slutkod</button>';
+        } else {
+            feedback.innerHTML = '<span class="error-text">❌ Åtkomst nekad. Systemet kräver rätt klockslag från Rum 1!</span>';
+        }
+    }
+
+
+    function checkFinalCode() {
+        const input = document.getElementById('final-code-input').value;
+        // 35 + 1000 = 1035
+        if (input === '1035') {
             switchScreen('victory-screen');
         } else {
-            feedback.innerHTML = '<span class="error-text">❌ Fel kod! Försök igen.</span>';
+            alert('Fel slutsiffra! Räkna igen: 35 + numret från Rum 2.');
         }
     }
 </script>
+
 
 </body>
 </html>
