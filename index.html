@@ -707,6 +707,7 @@ let phaseStart     = null;
 let timerInterval  = null;
 let teamAnswers    = {};
 let messages       = {};
+let phase3TimedOut = false;
 
 // ============================================================
 // FIREBASE HELPERS
@@ -726,9 +727,12 @@ async function submitAnswerToFirebase(blankKey, answer, phase, teamRole) {
 async function advancePhase(next) {
   const updates = { 'game/phase': next, 'game/phaseStart': Date.now() };
   if (next === 3) updates['game/phase3Start'] = Date.now();
-  if (next === 1) updates['game/answers'] = {};
-  if (next === 1) updates['game/teamAnswers'] = {};
-  if (next === 1) updates['game/messages'] = {};
+  if (next === 1) {
+    updates['game/answers'] = {};
+    updates['game/teamAnswers'] = {};
+    updates['game/messages'] = {};
+    updates['game/phase3TimedOut'] = null;
+  }
   await update(ref(db), updates);
 }
 
@@ -774,6 +778,10 @@ function render() {
   if (role === 'admin')  {
     if (!window._adminAuthed) { renderAdminAuth(); return; }
     renderAdmin(); return;
+  }
+  if (gamePhase === 'badend')  {
+    if (role === 'david') { renderBadEnd(); return; }
+    renderTeamGameOver(role); return;
   }
   if (gamePhase === 'victory')                                            { renderVictory();    return; }
   if (role === 'david')  { renderDavid(); return; }
@@ -874,6 +882,7 @@ function renderDavid() {
   appEl.innerHTML = `
     <div class="header">🎯 David<span class="phase-badge">Fas ${phase}/3 — ${data.title}</span></div>
     ${phase === 3 ? '<div id="timer-box"></div>' : ''}
+    ${phase === 3 && phase3TimedOut ? '<div class="alert-banner alert-red" style="margin-bottom:12px;">⏰ Tiden är ute — men ni kan fortfarande lista ut svaren!</div>' : ''}
     <div class="progress">🔍 ${filled}/${total} luckor ifyllda</div>
     <div class="lucktext">${storyHtml}</div>
     ${teamHints}
@@ -899,7 +908,7 @@ function renderDavid() {
 window.davidAdvance = function() {
   const phase = gamePhase;
   if (phase < 3) advancePhase(phase + 1);
-  else advancePhase('victory');
+  else advancePhase(phase3TimedOut ? 'badend' : 'victory');
 };
 function refreshDavidMessages() {
   const el = document.getElementById('david-messages');
@@ -1039,8 +1048,10 @@ window.adminLogin = function() {
 function renderAdmin() {
   const phase = gamePhase;
   const isVictory = phase === 'victory';
-  const data       = isVictory ? PHASES[3] : PHASES[phase];
-  const blankCount = data ? totalBlanks(isVictory ? 3 : phase) : 0;
+  const isBadEnd  = phase === 'badend';
+  const data       = (isVictory || isBadEnd) ? PHASES[3] : PHASES[phase];
+  const showPhase  = (isVictory || isBadEnd) ? 3 : phase;
+  const blankCount = data ? totalBlanks(showPhase) : 0;
   const filled     = data ? Object.keys(data.blanks).filter(k => answers[k]).length : 0;
 
   let statusRows = '';
@@ -1082,10 +1093,11 @@ function renderAdmin() {
     </div>`).join('');
 
   appEl.innerHTML = `
-    <div class="header">🔧 Admin<span class="phase-badge">${isVictory ? '✓ KLAR' : `Fas ${phase}/3`}</span></div>
-    ${isVictory ? '<div class="alert-banner alert-red" style="margin-bottom:12px;">⚠️ Spelet är avslutat. Facit för fas 3 visas nedan. Återställ för att starta om.</div>' : ''}
+    <div class="header">🔧 Admin<span class="phase-badge">${isVictory ? '✓ KLAR' : isBadEnd ? '😬 BAD END' : `Fas ${phase}/3`}</span></div>
+    ${isVictory ? '<div class="alert-banner alert-red" style="margin-bottom:12px;">⚠️ Spelet är avslutat (bra slut). Återställ för att starta om.</div>' : ''}
+    ${isBadEnd ? '<div class="alert-banner alert-red" style="margin-bottom:12px;">😬 BAD ENDING — tiden gick ut i fas 3. David fick fel bebis. Återställ för att starta om.</div>' : ''}
     <div class="card">
-      <h2>Luckor ifyllda: ${filled}/${blankCount} ${isVictory ? '(fas 3)' : ''}</h2>
+      <h2>Luckor ifyllda: ${filled}/${blankCount} ${(isVictory || isBadEnd) ? '(fas 3)' : ''}</h2>
       <div style="color:var(--text-dim);font-size:11px;margin-bottom:8px;">Facit i orange till höger</div>
       ${statusRows}
     </div>
@@ -1119,8 +1131,31 @@ function renderVictory() {
       <div class="big">🎉</div>
       <h1>Välkommen till världen, Samuel!</h1>
       <p>Ni löste alla mysterier tillsammans — lagens detektivarbete och Davids beslutsamhet räddade dagen.</p>
-      <p style="margin-top:24px;font-size:22px;color:var(--green);">Samuel von Martens 👶<br><span style="font-size:14px;color:var(--text-dim);">21 maj — 3,2 kg — 51 cm</span></p>
+      <p style="margin-top:24px;font-size:22px;color:var(--green);">Samuel von Martens 👶<br><span style="font-size:14px;color:var(--text-dim);">19 maj — 3,2 kg — 51 cm</span></p>
       <p style="margin-top:36px;font-size:13px;color:var(--text-dim);">Operation: Fel Bebis — slutförd ✓<br>Grattis David & Louise Riknert! 🎁</p>
+    </div>`;
+}
+
+function renderBadEnd() {
+  stopTimer();
+  appEl.innerHTML = `
+    <div class="victory">
+      <div class="big">😬⏰</div>
+      <h1 style="color:var(--red);">FÖR SENT</h1>
+      <p style="line-height:1.8;">Ni löste mysteriet — men för sent.<br>David fick panik när tiden rann ut och tog med <strong style="color:var(--red);">fel bebis</strong> hem.</p>
+      <p style="font-size:13px;color:var(--text-dim);margin-top:12px;">Louise har inte märkt något — än.<br>Samuel ligger kvar på BB, ovetandes om kaoset.</p>
+      <p style="margin-top:24px;font-size:13px;color:var(--red);">Det här kommer bli en pinsam förklaring... 💀</p>
+    </div>`;
+}
+
+function renderTeamGameOver(teamRole) {
+  const info = TEAM_INFO[teamRole];
+  appEl.innerHTML = `
+    <div class="header">${info.emoji} ${info.name}<span class="phase-badge">Slut</span></div>
+    <div class="card" style="text-align:center;padding:32px 16px;">
+      <div style="font-size:40px;">😬</div>
+      <h2 style="color:var(--red);margin:12px 0;">BAD ENDING</h2>
+      <p style="color:var(--text-dim);font-size:14px;line-height:1.7;">Spelet är slut.<br>Alla svar skickades — men tiden rann ut.<br>Kolla med David hur det gick.</p>
     </div>`;
 }
 
@@ -1150,6 +1185,10 @@ function tickTimer() {
   const s   = String(remaining%60).padStart(2,'0');
   const cls = remaining < 30 ? 'urgent' : remaining < 90 ? 'warning' : 'ok';
   box.innerHTML = `<div class="timer ${cls}">${m}:${s}</div>`;
+  if (remaining === 0 && !phase3TimedOut) {
+    stopTimer();
+    update(ref(db), { 'game/phase3TimedOut': true });
+  }
 }
 
 // ============================================================
@@ -1180,6 +1219,10 @@ function setupListeners() {
   onValue(ref(db,'game/messages'), snap => {
     messages = snap.val() ?? {};
     if (role === 'david') refreshDavidMessages();
+  });
+  onValue(ref(db,'game/phase3TimedOut'), snap => {
+    phase3TimedOut = snap.val() ?? false;
+    if (role === 'david') renderDavid();
   });
 }
 
