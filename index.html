@@ -887,6 +887,23 @@ function renderAdmin() {
     }).join('');
   }
 
+  const baseUrl = location.origin + location.pathname;
+  const qrLinks = [
+    { label: '🏠 Huvudsida', url: baseUrl },
+    { label: '🎯 David',    url: baseUrl + '?role=david' },
+    { label: '🍼 Blöjpatrullen', url: baseUrl + '?role=team1' },
+    { label: '🧸 Nappkommissionen', url: baseUrl + '?role=team2' },
+    { label: '🥣 Vällingmaffian', url: baseUrl + '?role=team3' },
+    { label: '🔧 Admin',    url: baseUrl + '?role=admin' },
+  ];
+  const qrHtml = qrLinks.map(q => `
+    <div style="text-align:center;padding:8px;background:var(--surface);border-radius:8px;">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(q.url)}" 
+           style="display:block;margin:0 auto;border-radius:4px;width:100px;height:100px;" alt="QR">
+      <div style="font-size:12px;font-weight:600;margin:4px 0 0;">${q.label}</div>
+      <div style="font-size:9px;color:var(--text-dim);word-break:break-all;line-height:1.2;" onclick="navigator.clipboard.writeText('${q.url}')">📋 Kopiera</div>
+    </div>`).join('');
+
   appEl.innerHTML = `
     <div class="header">🔧 Admin<span class="phase-badge">${isVictory ? '✓ KLAR' : `Fas ${phase}/3`}</span></div>
     ${isVictory ? '<div class="alert-banner alert-red" style="margin-bottom:12px;">⚠️ Spelet är avslutat. Facit för fas 3 visas nedan. Återställ för att starta om.</div>' : ''}
@@ -894,6 +911,13 @@ function renderAdmin() {
       <h2>Luckor ifyllda: ${filled}/${blankCount} ${isVictory ? '(fas 3)' : ''}</h2>
       <div style="color:var(--text-dim);font-size:11px;margin-bottom:8px;">Facit i orange till höger</div>
       ${statusRows}
+    </div>
+    <div class="card">
+      <h2>📱 QR-koder för alla roller</h2>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+        ${qrHtml}
+      </div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:8px;text-align:center;">Tryck på "📋 Kopiera" för att kopiera URL</div>
     </div>
     <div class="section-label">Hoppa till fas</div>
     <button class="btn btn-secondary" onclick="adminSet(1)" style="margin-bottom:6px;">→ Fas 1: Kaoset hemma</button>
