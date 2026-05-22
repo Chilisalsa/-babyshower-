@@ -231,7 +231,7 @@
 
 <script type="module">
 import { initializeApp }                               from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getDatabase, ref, set, get, update, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+import { getDatabase, ref, set, get, update, onValue, push } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 
 const FIREBASE_CONFIG = {
   apiKey:            "AIzaSyBRscJyDf0yJmQgbxPcwSJy4BPkzeR3gPo",
@@ -383,8 +383,8 @@ const PHASE3_SECS = 7 * 60;
         rum:    { label: 'RUM',       answers: ['102', 'bb-102', 'bb102'] },
       },
       whoHasWhat: {
-        team1: '📋 Personallista — vet barnmorskans namn. Behöver avdelning från Nappkommissionen.',
-        team2: '🏥 Karta & renoveringsnotis — vet avdelning + våning. Dela med Blöjpatrullen!',
+        team1: '📋 Personallista — vet barnmorskans namn + skift. Behöver avdelning från Nappkommissionen.',
+        team2: '🏥 Karta & renoveringsnotis — vet orsak + avdelning + våningsplan. Dela avdelningsinfo med Blöjpatrullen!',
         team3: '🚪 Rumslogg — vet rumsnumret reserverat för Riknert.',
       },
       dossiers: {
@@ -414,7 +414,7 @@ const PHASE3_SECS = 7 * 60;
           ['3. Tillhör rätt avdelning (BB-2)', false],
         ],
         answerLabel: 'Vad heter barnmorskan som ska ta emot Riknert?\n(Titta på listan: rätt avdelning + rätt skift.)',
-        answerFields: ['namn'],
+        answerFields: ['namn','skift'],
       },
       team2: {
         title: '🏥 Sjukhuskarta & Renoveringsnotis',
@@ -445,7 +445,7 @@ const PHASE3_SECS = 7 * 60;
           ['Signerat: Sjukhusledningen', false],
         ],
         answerLabel: 'Två saker att berätta för David:\n1. Vilken avdelning flyttades?\n2. Till vilken våning?\n\n⚠️ Berätta även för 🍼 Blöjpatrullen vilken avdelning de ska filtrera på!',
-        answerFields: ['avd','vaning'],
+        answerFields: ['orsak','avd','vaning'],
       },
       team3: {
         title: '🚪 Rumslogg — Beläggning BB-2',
@@ -556,7 +556,7 @@ const PHASE3_SECS = 7 * 60;
           ['', false],
           ['Bebis #1043 | Vikt: 3,5 kg | Kön: Flicka | Mamma: Pettersson | Kl: 01:30', false],
           ['Bebis #1045 | Vikt: 3,0 kg | Kön: Pojke  | Mamma: Eriksson  | Kl: 01:45', false],
-          ['Bebis #1047 | Vikt: 3,2 kg | Kön: Pojke  | Mamma: Riknert    | Kl: 02:10', true],
+          ['Bebis #1047 | Vikt: 3,2 kg | Kön: Pojke  | Mamma: Riknert | Namn: Samuel | Kl: 02:10', true],
           ['Bebis #1048 | Vikt: 3,8 kg | Kön: Pojke  | Mamma: Svensson   | Kl: 02:15', false],
           ['Bebis #1050 | Vikt: 3,1 kg | Kön: Flicka | Mamma: Rydberg    | Kl: 02:30', false],
           ['Bebis #1052 | Vikt: 3,6 kg | Kön: Pojke  | Mamma: Rickardsson | Kl: 02:40', false],
@@ -584,6 +584,7 @@ let phase3Start    = null;
 let phaseStart     = null;
 let timerInterval  = null;
 let teamAnswers    = {};
+let messages       = {};
 
 // ============================================================
 // FIREBASE HELPERS
@@ -605,7 +606,19 @@ async function advancePhase(next) {
   if (next === 3) updates['game/phase3Start'] = Date.now();
   if (next === 1) updates['game/answers'] = {};
   if (next === 1) updates['game/teamAnswers'] = {};
+  if (next === 1) updates['game/messages'] = {};
   await update(ref(db), updates);
+}
+
+async function sendMessageToDavid(teamRole, text) {
+  const msgRef = push(ref(db, 'game/messages'));
+  await set(msgRef, { team: teamRole, text: text.trim(), timestamp: Date.now() });
+  for (const key of PHASES[gamePhase]?.dossiers?.[teamRole]?.answerFields || []) {
+    const blank = PHASES[gamePhase]?.blanks?.[key];
+    if (blank && matchAnswer(text, blank.answers)) {
+      await submitAnswerToFirebase(key, text, gamePhase, teamRole);
+    }
+  }
 }
 
 async function resetGame() {
@@ -743,6 +756,10 @@ function renderDavid() {
     <div class="lucktext">${storyHtml}</div>
     ${teamHints}
     <div class="card">
+      <h2>📬 Meddelanden från lagen</h2>
+      <div id="david-messages" style="max-height:300px;overflow-y:auto;"></div>
+    </div>
+    <div class="card">
       <h2>📖 Din uppgift</h2>
       <p style="font-size:14px;line-height:1.7;color:var(--text-dim);">
         ${phase === 1 ? 'Lagen har varsin dossier med information. <strong>DU måste berätta för dem vad du behöver veta.</strong> Luckorna ovan visar vad som saknas. Fråga rätt lag!' : ''}
@@ -754,6 +771,7 @@ function renderDavid() {
       ? `<button class="btn btn-primary" onclick="davidAdvance()">✅ Alla luckor ifyllda — ${phase < 3 ? 'Fortsätt till fas '+(phase+1) : 'Slutför uppdraget!'}</button>`
       : '<div class="waiting">Väntar på att lagen skickar sina svar… ⏳</div>'}`;
 
+  refreshDavidMessages();
   if (phase === 3) startTimer();
 }
 window.davidAdvance = function() {
@@ -761,6 +779,27 @@ window.davidAdvance = function() {
   if (phase < 3) advancePhase(phase + 1);
   else advancePhase('victory');
 };
+function refreshDavidMessages() {
+  const el = document.getElementById('david-messages');
+  if (!el) return;
+  const msgs = Object.values(messages)
+    .filter(m => m.team)
+    .sort((a, b) => a.timestamp - b.timestamp)
+    .slice(-20);
+  if (msgs.length === 0) {
+    el.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:12px;font-size:13px;">Väntar på att lagen ska skicka information… 💬</div>';
+  } else {
+    el.innerHTML = msgs.map(m => {
+      const info = TEAM_INFO[m.team];
+      return `<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;line-height:1.5;">
+        <span style="color:${info?.color || 'var(--text)'};font-weight:600;">${info?.emoji || ''} ${info?.name || m.team}</span>
+        <span style="color:var(--text-dim);font-size:10px;float:right;">${new Date(m.timestamp).toLocaleTimeString('sv',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</span>
+        <br><span style="color:var(--text);">"${m.text}"</span>
+      </div>`;
+    }).join('');
+    el.scrollTop = el.scrollHeight;
+  }
+}
 
 // --- Team ---
 function renderTeam(teamRole) {
@@ -777,17 +816,17 @@ function renderTeam(teamRole) {
 
   const hasAnswered = doss.answerFields.every(f => teamAnswers[teamRole]?.[f]);
 
-  const dossierHtml = doss.lines.map(([text, hl]) =>
+  const dossierHtml = doss.lines.map(([text, hl], idx) =>
     text === ''
       ? '<div style="height:8px;"></div>'
-      : `<div class="dossier-line ${hl ? 'highlight' : ''}">${text}</div>`
+      : `<div class="dossier-line ${hl ? 'highlight' : ''}" onclick="tapLine('${teamRole}',${idx})" style="cursor:pointer;transition:background 0.15s;">${text}</div>`
   ).join('');
 
   appEl.innerHTML = `
     <div class="header">${info.emoji} ${info.name}<span class="phase-badge">Fas ${phase}/3 — ${data.title}</span></div>
     ${phase === 3 ? '<div class="alert-banner alert-red">⚠️ 7 minuters timer aktiv! Hjälp David hitta Samuel NU!</div>' : ''}
-    <div class="section-label">📂 Er dossier</div>
-    <div class="dossier-card">${dossierHtml}</div>
+    <div class="section-label">📂 Er dossier <span style="font-weight:400;color:var(--text-dim);font-size:11px;">— tryck på en rad för att skicka till David</span></div>
+    <div class="dossier-card" id="dossier-scroll">${dossierHtml}</div>
     ${hasAnswered
       ? `<div class="btn btn-sent" style="margin-bottom:12px;">✅ Svar skickat till David!</div>`
       : `
@@ -800,6 +839,15 @@ function renderTeam(teamRole) {
     }
     <div class="waiting">${phase === 3 ? '⏱️ Varje sekund räknas!' : '💬 Prata med David och de andra lagen — kommunikation är nyckeln!'}</div>`;
 }
+window.tapLine = async function(teamRole, idx) {
+  const data = PHASES[gamePhase];
+  const doss = data?.dossiers?.[teamRole];
+  const line = doss?.lines?.[idx];
+  if (!line || !line[0]) return;
+  const el = document.querySelector(`#dossier-scroll > :nth-child(${idx+1})`);
+  if (el) { el.style.background = 'rgba(0,200,150,0.2)'; setTimeout(() => { el.style.background = ''; }, 600); }
+  await sendMessageToDavid(teamRole, line[0]);
+};
 window.teamSubmit = function(teamRole) {
   const phase = gamePhase;
   const data  = PHASES[phase];
@@ -876,13 +924,21 @@ function renderAdmin() {
 
   let statusRows = '';
   if (data) {
+    const blankTeam = {};
+    Object.entries(data.dossiers).forEach(([t, d]) => {
+      d.answerFields.forEach(f => { blankTeam[f] = t; });
+    });
     statusRows = Object.entries(data.blanks).map(([key, b]) => {
       const icon = answers[key] ? '🟢' : '🔲';
       const val  = answers[key] || '<span style="color:var(--text-dim);">—</span>';
       const facit = b.answers[0];
-      return `<div style="line-height:2.2;font-size:14px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
-        <span>${icon} <strong>${b.label}</strong>: ${val}</span>
-        <span style="font-size:11px;color:var(--accent);font-family:monospace;white-space:nowrap;">facit: ${facit}</span>
+      const tKey = blankTeam[key];
+      const team = TEAM_INFO[tKey];
+      const source = team ? `<span style="font-size:10px;color:${team.color};white-space:nowrap;">${team.emoji} ${team.name}</span>` : '';
+      return `<div style="line-height:2.2;font-size:14px;display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <span style="flex:1;">${icon} <strong>${b.label}</strong>: ${val}</span>
+        <span style="font-size:10px;color:var(--accent);font-family:monospace;white-space:nowrap;">facit: ${facit}</span>
+        ${source}
       </div>`;
     }).join('');
   }
@@ -999,6 +1055,10 @@ function setupListeners() {
   });
   onValue(ref(db,'game/phaseStart'), snap => {
     phaseStart = snap.val();
+  });
+  onValue(ref(db,'game/messages'), snap => {
+    messages = snap.val() ?? {};
+    if (role === 'david') refreshDavidMessages();
   });
 }
 
