@@ -581,6 +581,7 @@ const role = new URLSearchParams(location.search).get('role');
 let gamePhase      = 1;
 let answers        = {};
 let phase3Start    = null;
+let phaseStart     = null;
 let timerInterval  = null;
 let teamAnswers    = {};
 
@@ -600,7 +601,7 @@ async function submitAnswerToFirebase(blankKey, answer, phase, teamRole) {
 }
 
 async function advancePhase(next) {
-  const updates = { 'game/phase': next };
+  const updates = { 'game/phase': next, 'game/phaseStart': Date.now() };
   if (next === 3) updates['game/phase3Start'] = Date.now();
   if (next === 1) updates['game/answers'] = {};
   if (next === 1) updates['game/teamAnswers'] = {};
@@ -635,7 +636,10 @@ const appEl = document.getElementById('app');
 function render() {
   if (NEEDS_SETUP)                                                       { renderSetup();      return; }
   if (!role || !['david','team1','team2','team3','admin'].includes(role)) { renderRoleSelect(); return; }
-  if (role === 'admin')  { renderAdmin(); return; }
+  if (role === 'admin')  {
+    if (!window._adminAuthed) { renderAdminAuth(); return; }
+    renderAdmin(); return;
+  }
   if (gamePhase === 'victory')                                            { renderVictory();    return; }
   if (role === 'david')  { renderDavid(); return; }
   renderTeam(role);
@@ -709,19 +713,27 @@ function renderDavid() {
   );
 
   let teamHints = '';
-  if (data.whoHasWhat) {
-    teamHints = '<div class="card" style="background:var(--surface2);"><h2>📋 Vem har vilken dossier? (du måste fråga dem!)</h2><div style="font-size:13px;line-height:2;">' +
-      Object.entries(data.whoHasWhat).filter(([t]) => {
-        const fields = data.dossiers[t]?.answerFields || [];
-        return fields.some(f => !answers[f]);
-      }).map(([t, desc]) => {
-        const info = TEAM_INFO[t];
-        const fields = data.dossiers[t]?.answerFields || [];
-        const unfilled = fields.filter(f => !answers[f]);
-        const stillNeeded = unfilled.map(f => `<span style="color:var(--accent);">[${data.blanks[f]?.label}]</span>`).join(', ');
-        return `${info.emoji} <strong>${info.name}</strong> — ${desc} ${stillNeeded ? `<br><span style="font-size:11px;color:var(--text-dim);padding-left:24px;">Du behöver: ${stillNeeded}</span>` : ''}`;
-      }).join('<br>') +
-      '</div></div>';
+  const elapsedSecs = phaseStart ? Math.floor((Date.now() - phaseStart) / 1000) : 0;
+  const showHints = elapsedSecs >= 5 * 60;
+  if (showHints && data.whoHasWhat) {
+    const remaining = Object.entries(data.whoHasWhat).filter(([t]) => {
+      const fields = data.dossiers[t]?.answerFields || [];
+      return fields.some(f => !answers[f]);
+    });
+    if (remaining.length > 0) {
+      teamHints = '<div class="card" style="background:var(--surface2);border:1px solid var(--accent);"><h2>💡 Hint — Vem har vilken dossier?</h2><div style="font-size:13px;line-height:2;">' +
+        remaining.map(([t, desc]) => {
+          const info = TEAM_INFO[t];
+          const fields = data.dossiers[t]?.answerFields || [];
+          const unfilled = fields.filter(f => !answers[f]);
+          const stillNeeded = unfilled.map(f => `<span style="color:var(--accent);">[${data.blanks[f]?.label}]</span>`).join(', ');
+          return `${info.emoji} <strong>${info.name}</strong> — ${desc} ${stillNeeded ? `<br><span style="font-size:11px;color:var(--text-dim);padding-left:24px;">Du behöver: ${stillNeeded}</span>` : ''}`;
+        }).join('<br>') +
+        '</div></div>';
+    }
+  } else if (!showHints && data.whoHasWhat && filled < total) {
+    const minsLeft = Math.max(0, 5 - Math.floor(elapsedSecs / 60));
+    teamHints = `<div class="card" style="background:var(--surface2);opacity:0.5;text-align:center;"><p style="font-size:13px;color:var(--text-dim);">💡 Hints låses upp om <strong>${minsLeft} min</strong></p></div>`;
   }
 
   appEl.innerHTML = `
@@ -829,37 +841,72 @@ window.teamSubmit = function(teamRole) {
   }
 };
 
+// --- Admin Auth ---
+window._adminAuthed = false;
+function renderAdminAuth() {
+  appEl.innerHTML = `
+    <div style="padding-top:48px;text-align:center;">
+      <div style="font-size:40px;">🔒</div>
+      <h1 style="font-size:22px;color:var(--accent);margin:16px 0 8px;">Admin-inloggning</h1>
+      <p style="font-size:14px;color:var(--text-dim);margin-bottom:24px;">Ange lösenord för att fortsätta</p>
+      <input class="puzzle-input" id="admin-pw" type="password" placeholder="Lösenord" autocomplete="off" style="max-width:280px;margin:0 auto 12px;display:block;">
+      <div class="feedback" id="admin-fb"></div>
+      <button class="btn btn-primary" onclick="adminLogin()" style="max-width:280px;margin:0 auto;">Logga in</button>
+    </div>`;
+  setTimeout(() => document.getElementById('admin-pw')?.focus(), 100);
+}
+window.adminLogin = function() {
+  const pw = document.getElementById('admin-pw')?.value;
+  const fb = document.getElementById('admin-fb');
+  if (pw === 'apa') {
+    window._adminAuthed = true;
+    renderAdmin();
+  } else {
+    showFb(fb, 'error', 'Fel lösenord');
+  }
+};
+
 // --- Admin ---
 function renderAdmin() {
   const phase = gamePhase;
   const isVictory = phase === 'victory';
-  const data       = isVictory ? null : PHASES[phase];
-  const blankCount = data ? totalBlanks(phase) : 0;
-  const filled     = data ? countFilled(phase) : 0;
+  const data       = isVictory ? PHASES[3] : PHASES[phase];
+  const blankCount = data ? totalBlanks(isVictory ? 3 : phase) : 0;
+  const filled     = data ? Object.keys(data.blanks).filter(k => answers[k]).length : 0;
 
   let statusRows = '';
   if (data) {
     statusRows = Object.entries(data.blanks).map(([key, b]) => {
       const icon = answers[key] ? '🟢' : '🔲';
-      const val  = answers[key] || '—';
-      return `<div style="line-height:2.2;font-size:14px;">${icon} <strong>${b.label}</strong>: ${val}</div>`;
+      const val  = answers[key] || '<span style="color:var(--text-dim);">—</span>';
+      const facit = b.answers[0];
+      return `<div style="line-height:2.2;font-size:14px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
+        <span>${icon} <strong>${b.label}</strong>: ${val}</span>
+        <span style="font-size:11px;color:var(--accent);font-family:monospace;white-space:nowrap;">facit: ${facit}</span>
+      </div>`;
     }).join('');
   }
 
   appEl.innerHTML = `
     <div class="header">🔧 Admin<span class="phase-badge">${isVictory ? '✓ KLAR' : `Fas ${phase}/3`}</span></div>
-    ${isVictory ? '<div class="alert-banner alert-red" style="margin-bottom:12px;">⚠️ Spelet är avslutat. Tryck på ÅTERSTÄLL för att starta om.</div>' : ''}
+    ${isVictory ? '<div class="alert-banner alert-red" style="margin-bottom:12px;">⚠️ Spelet är avslutat. Facit för fas 3 visas nedan. Återställ för att starta om.</div>' : ''}
     <div class="card">
-      <h2>Luckor ifyllda: ${filled}/${blankCount}</h2>
-      ${statusRows || (isVictory ? '<p style="color:var(--green);">Alla luckor löstes! 🎉</p>' : '')}
+      <h2>Luckor ifyllda: ${filled}/${blankCount} ${isVictory ? '(fas 3)' : ''}</h2>
+      <div style="color:var(--text-dim);font-size:11px;margin-bottom:8px;">Facit i orange till höger</div>
+      ${statusRows}
     </div>
     <div class="section-label">Hoppa till fas</div>
     <button class="btn btn-secondary" onclick="adminSet(1)" style="margin-bottom:6px;">→ Fas 1: Kaoset hemma</button>
     <button class="btn btn-secondary" onclick="adminSet(2)" style="margin-bottom:6px;">→ Fas 2: Sjukhuslabyrinten</button>
     <button class="btn btn-secondary" onclick="adminSet(3)" style="margin-bottom:6px;">→ Fas 3: Rädda Samuel (7min timer)</button>
     <button class="btn btn-secondary" onclick="adminSet('victory')" style="margin-bottom:12px;">→ Victory</button>
-    <button class="btn btn-primary" onclick="adminReset()" style="background:rgba(232,67,147,0.85);border-color:var(--red);color:#fff;">🔄 Återställ spelet — börja om från fas 1</button>`;
+    <button class="btn btn-primary" onclick="adminReset()" style="background:rgba(232,67,147,0.85);border-color:var(--red);color:#fff;margin-bottom:8px;">🔄 Återställ spelet — börja om från fas 1</button>
+    <button class="btn btn-secondary" onclick="adminLogout()" style="font-size:13px;color:var(--text-dim);">🚪 Logga ut</button>`;
 }
+window.adminLogout = function() {
+  window._adminAuthed = false;
+  renderAdminAuth();
+};
 window.adminSet   = p => advancePhase(p);
 window.adminReset = async () => { if (confirm('Återställ hela spelet?')) await resetGame(); };
 
@@ -925,6 +972,9 @@ function setupListeners() {
   onValue(ref(db,'game/phase3Start'), snap => {
     phase3Start = snap.val();
     if (gamePhase === 3 && role === 'david') startTimer();
+  });
+  onValue(ref(db,'game/phaseStart'), snap => {
+    phaseStart = snap.val();
   });
 }
 
