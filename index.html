@@ -620,9 +620,9 @@ const appEl = document.getElementById('app');
 function render() {
   if (NEEDS_SETUP)                                                       { renderSetup();      return; }
   if (!role || !['david','team1','team2','team3','admin'].includes(role)) { renderRoleSelect(); return; }
+  if (role === 'admin')  { renderAdmin(); return; }
   if (gamePhase === 'victory')                                            { renderVictory();    return; }
   if (role === 'david')  { renderDavid(); return; }
-  if (role === 'admin')  { renderAdmin(); return; }
   renderTeam(role);
 }
 
@@ -799,8 +799,9 @@ window.teamSubmit = function(teamRole) {
 
 // --- Admin ---
 function renderAdmin() {
-  const phase      = gamePhase;
-  const data       = PHASES[phase];
+  const phase = gamePhase;
+  const isVictory = phase === 'victory';
+  const data       = isVictory ? null : PHASES[phase];
   const blankCount = data ? totalBlanks(phase) : 0;
   const filled     = data ? countFilled(phase) : 0;
 
@@ -814,17 +815,18 @@ function renderAdmin() {
   }
 
   appEl.innerHTML = `
-    <div class="header">🔧 Admin<span class="phase-badge">Fas ${phase === 'victory' ? '✓' : `${phase}/3`}</span></div>
+    <div class="header">🔧 Admin<span class="phase-badge">${isVictory ? '✓ KLAR' : `Fas ${phase}/3`}</span></div>
+    ${isVictory ? '<div class="alert-banner alert-red" style="margin-bottom:12px;">⚠️ Spelet är avslutat. Tryck på ÅTERSTÄLL för att starta om.</div>' : ''}
     <div class="card">
       <h2>Luckor ifyllda: ${filled}/${blankCount}</h2>
-      ${statusRows}
+      ${statusRows || (isVictory ? '<p style="color:var(--green);">Alla luckor löstes! 🎉</p>' : '')}
     </div>
     <div class="section-label">Hoppa till fas</div>
     <button class="btn btn-secondary" onclick="adminSet(1)" style="margin-bottom:6px;">→ Fas 1: Kaoset hemma</button>
     <button class="btn btn-secondary" onclick="adminSet(2)" style="margin-bottom:6px;">→ Fas 2: Sjukhuslabyrinten</button>
     <button class="btn btn-secondary" onclick="adminSet(3)" style="margin-bottom:6px;">→ Fas 3: Rädda Samuel (7min timer)</button>
     <button class="btn btn-secondary" onclick="adminSet('victory')" style="margin-bottom:12px;">→ Victory</button>
-    <button class="btn btn-secondary" onclick="adminReset()" style="background:rgba(232,67,147,0.2);border-color:var(--red);color:var(--red);">🔄 Återställ spelet</button>`;
+    <button class="btn btn-primary" onclick="adminReset()" style="background:rgba(232,67,147,0.85);border-color:var(--red);color:#fff;">🔄 Återställ spelet — börja om från fas 1</button>`;
 }
 window.adminSet   = p => advancePhase(p);
 window.adminReset = async () => { if (confirm('Återställ hela spelet?')) await resetGame(); };
