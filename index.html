@@ -255,21 +255,26 @@ const TEAM_INFO = {
 
 const PHASE3_SECS = 7 * 60;
 
-// ============================================================
-// SPELDATA — 3 faser med dossiers
-// ============================================================
-const PHASES = {
-  1: {
-    title: 'Kaoset hemma',
-    story: 'Klockan var <b class="blank" data-key="tid">TID</b>. "Det är dags!" skrek Louise. Jag rusade till <b class="blank" data-key="rum1">RUM 1</b> — men BB-väskan var borta. Louise hade flyttat den till <b class="blank" data-key="rum2">RUM 2</b> igår kväll, efter att hon <b class="blank" data-key="handelse">HÄNDELSE</b>. Bilnyckeln låg som alltid <b class="blank" data-key="plats">PLATS</b>.',
-    blanks: {
-      tid:      { label: 'TID',            answers: ['23:15'] },
-      rum1:     { label: 'RUM 1',          answers: ['hallen'] },
-      rum2:     { label: 'RUM 2',          answers: ['sovrummet', 'sovrum'] },
-      handelse: { label: 'HÄNDELSE',       answers: ['städade', 'fixade bebishörnan', 'städade och fixade bebishörnan', 'hon städade'] },
-      plats:    { label: 'PLATS',          answers: ['vid badrumsspegeln', 'badrumsspegeln', 'badrummet', 'badrum'] },
-    },
-    dossiers: {
+  // ============================================================
+  // SPELDATA — 3 faser med dossiers
+  // ============================================================
+  const PHASES = {
+    1: {
+      title: 'Kaoset hemma',
+      story: 'Klockan var <b class="blank" data-key="tid">TID</b>. "Det är dags!" skrek Louise. Jag rusade till <b class="blank" data-key="rum1">RUM 1</b> — men BB-väskan var borta. Louise hade flyttat den till <b class="blank" data-key="rum2">RUM 2</b> igår kväll, efter att hon <b class="blank" data-key="handelse">HÄNDELSE</b>. Bilnyckeln låg som alltid <b class="blank" data-key="plats">PLATS</b>.',
+      blanks: {
+        tid:      { label: 'TID',            answers: ['23:15'] },
+        rum1:     { label: 'RUM 1',          answers: ['hallen'] },
+        rum2:     { label: 'RUM 2',          answers: ['sovrummet', 'sovrum'] },
+        handelse: { label: 'HÄNDELSE',       answers: ['städade', 'fixade bebishörnan', 'städade och fixade bebishörnan', 'hon städade'] },
+        plats:    { label: 'PLATS',          answers: ['vid badrumsspegeln', 'badrumsspegeln', 'badrummet', 'badrum'] },
+      },
+      whoHasWhat: {
+        team1: '📱 SMS-logg — vet vart väskan flyttades + vad Louise gjorde. Behöver rumsnyckeln från Nappkommissionen.',
+        team2: '🏠 Husritning — vet var väskan var först + kan avkoda rumsnamn åt Blöjpatrullen.',
+        team3: '📅 Kalender — vet klockslag + var bilnyckeln låg.',
+      },
+      dossiers: {
       team1: {
         title: '📱 SMS-logg — Louise & Davids chatt',
         lines: [
@@ -366,18 +371,23 @@ const PHASES = {
     },
   },
 
-  2: {
-    title: 'Sjukhuslabyrinten',
-    story: 'Sjukhuset var kaos — en <b class="blank" data-key="orsak">ORSAK</b> hade tvingat <b class="blank" data-key="avd">AVDELNING</b> att tillfälligt flytta till plan <b class="blank" data-key="vaning">VÅNING</b>. Barnmorskan <b class="blank" data-key="namn">NAMN</b> — den enda på <b class="blank" data-key="skift">SKIFT</b>-skiftet med rätt kompetens — tog emot oss. Hon visade oss till rum <b class="blank" data-key="rum">RUM</b>, reserverat för Riknert.',
-    blanks: {
-      orsak:  { label: 'ORSAK',     answers: ['vattenskada', 'vattenläcka'] },
-      avd:    { label: 'AVDELNING', answers: ['bb-2', 'bb2', 'bb 2'] },
-      vaning: { label: 'VÅNING',    answers: ['4', 'fyra', 'plan 4'] },
-      namn:   { label: 'NAMN',      answers: ['lindqvist', 'dr lindqvist', 'l lindqvist'] },
-      skift:  { label: 'SKIFT',     answers: ['natt', 'nattskift'] },
-      rum:    { label: 'RUM',       answers: ['102', 'bb-102', 'bb102'] },
-    },
-    dossiers: {
+    2: {
+      title: 'Sjukhuslabyrinten',
+      story: 'Sjukhuset var kaos — en <b class="blank" data-key="orsak">ORSAK</b> hade tvingat <b class="blank" data-key="avd">AVDELNING</b> att tillfälligt flytta till plan <b class="blank" data-key="vaning">VÅNING</b>. Barnmorskan <b class="blank" data-key="namn">NAMN</b> — den enda på <b class="blank" data-key="skift">SKIFT</b>-skiftet med rätt kompetens — tog emot oss. Hon visade oss till rum <b class="blank" data-key="rum">RUM</b>, reserverat för Riknert.',
+      blanks: {
+        orsak:  { label: 'ORSAK',     answers: ['vattenskada', 'vattenläcka'] },
+        avd:    { label: 'AVDELNING', answers: ['bb-2', 'bb2', 'bb 2'] },
+        vaning: { label: 'VÅNING',    answers: ['4', 'fyra', 'plan 4'] },
+        namn:   { label: 'NAMN',      answers: ['lindqvist', 'dr lindqvist', 'l lindqvist'] },
+        skift:  { label: 'SKIFT',     answers: ['natt', 'nattskift'] },
+        rum:    { label: 'RUM',       answers: ['102', 'bb-102', 'bb102'] },
+      },
+      whoHasWhat: {
+        team1: '📋 Personallista — vet barnmorskans namn. Behöver avdelning från Nappkommissionen.',
+        team2: '🏥 Karta & renoveringsnotis — vet avdelning + våning. Dela med Blöjpatrullen!',
+        team3: '🚪 Rumslogg — vet rumsnumret reserverat för Riknert.',
+      },
+      dossiers: {
       team1: {
         title: '📋 Personallista — Sjukhuset (kväll/natt)',
         lines: [
@@ -463,16 +473,21 @@ const PHASES = {
     },
   },
 
-  3: {
-    title: 'Rädda Samuel',
-    story: 'Två bebisar i rummet. Sköterskan pekade: "Den med <b class="blank" data-key="farg">FÄRG</b> mössa är er — Samuel." Han väger <b class="blank" data-key="vikt">VIKT</b> kg, precis som journalen. ID-armbandet bekräftar: <b class="blank" data-key="id">ID</b>. Välkommen till världen, <b class="blank" data-key="namn">NAMN</b> von Martens. 👶',
-    blanks: {
-      farg: { label: 'FÄRG',   answers: ['blå', 'blå mössa', 'blåa', 'blå mössan'] },
-      vikt: { label: 'VIKT',   answers: ['3,2', '3.2', '3,2 kg', '3.2 kg'] },
-      id:   { label: 'ID',     answers: ['#1047', '1047'] },
-      namn: { label: 'NAMN',   answers: ['samuel'] },
-    },
-    dossiers: {
+    3: {
+      title: 'Rädda Samuel',
+      story: 'Två bebisar i rummet. Sköterskan pekade: "Den med <b class="blank" data-key="farg">FÄRG</b> mössa är er — Samuel." Han väger <b class="blank" data-key="vikt">VIKT</b> kg, precis som journalen. ID-armbandet bekräftar: <b class="blank" data-key="id">ID</b>. Välkommen till världen, <b class="blank" data-key="namn">NAMN</b> von Martens. 👶',
+      blanks: {
+        farg: { label: 'FÄRG',   answers: ['blå', 'blå mössa', 'blåa', 'blå mössan'] },
+        vikt: { label: 'VIKT',   answers: ['3,2', '3.2', '3,2 kg', '3.2 kg'] },
+        id:   { label: 'ID',     answers: ['#1047', '1047'] },
+        namn: { label: 'NAMN',   answers: ['samuel'] },
+      },
+      whoHasWhat: {
+        team1: '👩‍⚕️ Observationslogg — vet vilken bebis (vagn A/B) som tillhör Riknert. Behöver kön från Nappkommissionen.',
+        team2: '📋 Patientjournal — vet förväntad vikt + kön + ID-ledtråd. Dela denna info med alla!',
+        team3: '⚖️ Våg & ID-register — vet ID-nummer + vikt för båda bebisarna. Behöver vikt från Nappkommissionen.',
+      },
+      dossiers: {
       team1: {
         title: '👩‍⚕️ Sköterskans Observationslogg — Nattpasset',
         lines: [
@@ -693,17 +708,34 @@ function renderDavid() {
     }
   );
 
+  let teamHints = '';
+  if (data.whoHasWhat) {
+    teamHints = '<div class="card" style="background:var(--surface2);"><h2>📋 Vem har vilken dossier? (du måste fråga dem!)</h2><div style="font-size:13px;line-height:2;">' +
+      Object.entries(data.whoHasWhat).filter(([t]) => {
+        const fields = data.dossiers[t]?.answerFields || [];
+        return fields.some(f => !answers[f]);
+      }).map(([t, desc]) => {
+        const info = TEAM_INFO[t];
+        const fields = data.dossiers[t]?.answerFields || [];
+        const unfilled = fields.filter(f => !answers[f]);
+        const stillNeeded = unfilled.map(f => `<span style="color:var(--accent);">[${data.blanks[f]?.label}]</span>`).join(', ');
+        return `${info.emoji} <strong>${info.name}</strong> — ${desc} ${stillNeeded ? `<br><span style="font-size:11px;color:var(--text-dim);padding-left:24px;">Du behöver: ${stillNeeded}</span>` : ''}`;
+      }).join('<br>') +
+      '</div></div>';
+  }
+
   appEl.innerHTML = `
     <div class="header">🎯 David<span class="phase-badge">Fas ${phase}/3 — ${data.title}</span></div>
     ${phase === 3 ? '<div id="timer-box"></div>' : ''}
     <div class="progress">🔍 ${filled}/${total} luckor ifyllda</div>
     <div class="lucktext">${storyHtml}</div>
+    ${teamHints}
     <div class="card">
-      <h2>📖 Situation</h2>
+      <h2>📖 Din uppgift</h2>
       <p style="font-size:14px;line-height:1.7;color:var(--text-dim);">
-        ${phase === 1 ? 'Lagen söker igenom sms, husritningar och Louises kalender för att hjälpa dig fylla i luckorna. Prata med dem!' : ''}
-        ${phase === 2 ? 'Lagen granskar personallistor, sjukhuskartor och rumsloggar. Alla måste samarbeta för att hitta rätt.' : ''}
-        ${phase === 3 ? '⏱️ <strong>7 minuter kvar!</strong> Lagen analyserar observationsloggar, journaler och ID-register för att hitta Samuel.' : ''}
+        ${phase === 1 ? 'Lagen har varsin dossier med information. <strong>DU måste berätta för dem vad du behöver veta.</strong> Luckorna ovan visar vad som saknas. Fråga rätt lag!' : ''}
+        ${phase === 2 ? 'Lagen granskar personallistor, kartor och rumsloggar. <strong>Berätta för dem exakt vilken information du behöver</strong> för att fylla luckorna.' : ''}
+        ${phase === 3 ? '⏱️ <strong>7 minuter!</strong> Berätta för lagen vilken information du behöver om bebisarna — de måste leta i sina dossiers.' : ''}
       </p>
     </div>
     ${filled === total
@@ -748,13 +780,13 @@ function renderTeam(teamRole) {
       ? `<div class="btn btn-sent" style="margin-bottom:12px;">✅ Svar skickat till David!</div>`
       : `
         <div class="card">
-          <div class="puzzle-label">${doss.answerLabel}</div>
+          <div class="puzzle-label">David väntar på information från er.<br><br>Läs er dossier noggrant. <strong>David kommer berätta vad han behöver.</strong><br><br>Skriv svaret nedan (separera flera svar med kommatecken):</div>
           <input class="puzzle-input" id="team-answer" placeholder="Skriv ert svar här…" autocomplete="off">
           <div class="feedback" id="team-fb"></div>
           <button class="btn btn-primary" onclick="teamSubmit('${teamRole}')">📤 Skicka till David</button>
         </div>`
     }
-    <div class="waiting">${phase === 3 ? '⏱️ Varje sekund räknas!' : 'Arbeta tillsammans — prata med de andra lagen!'}</div>`;
+    <div class="waiting">${phase === 3 ? '⏱️ Varje sekund räknas!' : '💬 Prata med David och de andra lagen — kommunikation är nyckeln!'}</div>`;
 }
 window.teamSubmit = function(teamRole) {
   const phase = gamePhase;
@@ -767,7 +799,7 @@ window.teamSubmit = function(teamRole) {
   const parts = raw.split(',').map(p => p.trim()).filter(Boolean);
 
   if (parts.length < doss.answerFields.length) {
-    showFb(fb, 'error', `Ni måste svara på alla ${doss.answerFields.length} punkter. Separera med kommatecken.`);
+    showFb(fb, 'error', 'Saknar svar — David bad om fler saker. Skriv allt han frågade om, separerat med kommatecken.');
     return;
   }
 
@@ -781,7 +813,7 @@ window.teamSubmit = function(teamRole) {
     const acc  = blanks[key]?.answers || [];
     if (!matchAnswer(part, acc)) {
       allOk = false;
-      showFb(fb, 'error', `"${part}" stämmer inte för ${blanks[key]?.label || key}. Läs dossieren igen!`);
+      showFb(fb, 'error', `"${part}" stämmer inte. Läs er dossier igen — informationen finns där!`);
       break;
     }
   }
