@@ -31,7 +31,7 @@
     }
 
     #app {
-      max-width: 480px;
+      max-width: 520px;
       margin: 0 auto;
       padding: 16px 16px 48px;
     }
@@ -97,26 +97,66 @@
     }
     .sep { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 
-    /* Clue cards */
-    .clue-card {
+    /* Lucktext */
+    .lucktext {
       background: var(--surface2);
       border: 1px solid var(--border);
       border-radius: var(--radius);
+      padding: 16px;
+      font-size: 16px;
+      line-height: 2.2;
+      margin-bottom: 12px;
+    }
+    .blank {
+      display: inline-block;
+      min-width: 40px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin: 0 2px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      border-bottom: 2px dashed var(--text-dim);
+      color: var(--text-dim);
+    }
+    .blank.filled {
+      color: var(--green);
+      border-bottom: 2px solid var(--green);
+      background: rgba(0,200,150,0.1);
+    }
+
+    /* Dossier */
+    .dossier-card {
+      background: #12121f;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
       padding: 14px;
-      margin-bottom: 10px;
-      animation: slideIn 0.35s ease;
+      margin-bottom: 12px;
+      max-height: 320px;
+      overflow-y: auto;
+      font-size: 13px;
+      line-height: 1.65;
+      white-space: pre-line;
+      font-family: 'SF Mono', 'Cascadia Code', 'Menlo', monospace;
     }
-    .clue-card.phase-1 { border-left: 3px solid var(--blue); }
-    .clue-card.phase-2 { border-left: 3px solid var(--purple); }
-    .clue-card.phase-3 { border-left: 3px solid var(--green); }
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(16px); }
-      to   { opacity: 1; transform: translateX(0); }
+    .dossier-line { padding: 1px 0; }
+    .dossier-line.highlight {
+      background: rgba(255,159,67,0.1);
+      border-left: 3px solid var(--accent);
+      padding-left: 8px;
+      margin: 2px 0;
     }
-    .clue-label   { font-size: 12px; font-weight: 600; color: var(--text-dim); margin-bottom: 6px; }
-    .clue-content { font-size: 14px; line-height: 1.65; white-space: pre-line; }
-    .clue-from    { font-size: 11px; color: var(--text-dim); margin-top: 6px; }
-    .empty-clues  { text-align: center; color: var(--text-dim); font-size: 14px; padding: 20px; font-style: italic; }
+
+    /* Inputs */
+    .puzzle-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px; color: var(--text);
+      font-size: 16px; margin-bottom: 12px;
+    }
+    .puzzle-input:focus { outline: none; border-color: var(--accent); }
+    .puzzle-label { font-size: 13px; color: var(--text-dim); margin-bottom: 6px; line-height: 1.6; white-space: pre-line; }
 
     /* Buttons */
     .btn {
@@ -131,46 +171,6 @@
     .btn-primary:active { transform: scale(0.98); filter: brightness(0.9); }
     .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
     .btn-sent      { background: var(--surface); color: var(--green); border: 1px solid var(--green); cursor: default; }
-
-    .btn-choice {
-      display: block; width: 100%;
-      background: var(--surface2); color: var(--text);
-      border: 2px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px; font-size: 15px;
-      cursor: pointer; text-align: left;
-      margin-bottom: 8px;
-      transition: border-color 0.15s;
-    }
-    .btn-choice:hover    { border-color: var(--accent); }
-    .btn-choice.selected { border-color: var(--accent); background: rgba(255,159,67,0.1); }
-
-    /* Inputs */
-    .puzzle-input {
-      width: 100%;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px; color: var(--text);
-      font-size: 16px; margin-bottom: 12px;
-    }
-    .puzzle-input:focus { outline: none; border-color: var(--accent); }
-    .puzzle-label { font-size: 13px; color: var(--text-dim); margin-bottom: 6px; }
-
-    .counter-row {
-      display: flex; align-items: center;
-      gap: 10px; margin-bottom: 10px;
-    }
-    .counter-row label { flex: 1; font-size: 14px; }
-    .counter-btn {
-      width: 40px; height: 40px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: var(--surface2); color: var(--text);
-      font-size: 20px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .counter-val { width: 32px; text-align: center; font-size: 20px; font-weight: 700; }
 
     /* Feedback */
     .feedback {
@@ -208,48 +208,20 @@
     .role-name  { font-size: 17px; font-weight: 700; margin: 6px 0 3px; }
     .role-desc  { font-size: 13px; color: var(--text-dim); }
 
-    /* Team clue */
-    .team-clue {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px; margin-bottom: 12px;
-      transition: opacity 0.3s;
-    }
-    .team-clue.sent { opacity: 0.55; }
-    .team-clue .clue-label   { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
-    .team-clue .clue-preview { font-size: 13px; color: var(--text-dim); line-height: 1.6; margin-bottom: 14px; white-space: pre-line; }
-
-    .waiting { text-align: center; color: var(--text-dim); font-size: 14px; padding: 16px; }
-
-    /* Admin */
-    .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .admin-btn {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px; padding: 12px;
-      color: var(--text); font-size: 14px; cursor: pointer;
-    }
-
     /* Victory */
     .victory { text-align: center; padding: 48px 16px; }
     .victory .big { font-size: 64px; margin-bottom: 16px; }
     .victory h1 { font-size: 28px; color: var(--accent); margin-bottom: 12px; }
     .victory p  { font-size: 15px; line-height: 1.7; color: var(--text-dim); }
 
-    /* Setup */
-    .setup-box {
-      background: rgba(255,159,67,0.08);
-      border: 1px solid var(--accent);
-      border-radius: var(--radius);
-      padding: 16px; font-size: 14px; line-height: 1.7; margin-top: 16px;
-    }
-    .setup-box code { background: var(--surface2); padding: 2px 5px; border-radius: 4px; font-size: 12px; }
-
     .alert-banner {
       border-radius: var(--radius); padding: 12px 14px; margin-bottom: 12px; font-size: 14px;
     }
     .alert-red { background: rgba(232,67,147,0.1); border: 1px solid var(--red); }
+
+    .progress { font-size: 13px; color: var(--text-dim); margin-bottom: 8px; text-align: center; }
+
+    .waiting { text-align: center; color: var(--text-dim); font-size: 14px; padding: 16px; }
   </style>
 </head>
 <body>
@@ -261,17 +233,6 @@
 import { initializeApp }                               from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getDatabase, ref, set, get, update, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 
-// ============================================================
-// FIREBASE KONFIGURATION — BYTA UT MOT DIN!
-//
-// Gör så här:
-// 1. Gå till https://console.firebase.google.com
-// 2. Skapa projekt → Realtime Database → Skapa databas
-//    Välj region "europe-west1 (Belgium)"
-//    Starta i testläge (tillåter läs/skriv i 30 dagar)
-// 3. Projektinställningar (kugghjulet) → Dina appar → Webbapp
-//    Kopiera firebaseConfig-objektet och klistra in nedan
-// ============================================================
 const FIREBASE_CONFIG = {
   apiKey:            "AIzaSyBRscJyDf0yJmQgbxPcwSJy4BPkzeR3gPo",
   authDomain:        "babyshower-david.firebaseapp.com",
@@ -281,117 +242,374 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "702345717854",
   appId:             "1:702345717854:web:d6d97ddac7fcfd668feccf",
 };
-// ============================================================
 
 const NEEDS_SETUP = FIREBASE_CONFIG.apiKey === 'DIN_API_KEY';
 let db = null;
 if (!NEEDS_SETUP) db = getDatabase(initializeApp(FIREBASE_CONFIG));
 
-// ============================================================
-// SPELDATA
-// ============================================================
 const TEAM_INFO = {
-  team1: { name: 'Blöjpatrullen',   emoji: '🍼' },
-  team2: { name: 'Nappkommissionen', emoji: '🧸' },
-  team3: { name: 'Vällingmaffian',  emoji: '🥣' },
+  team1: { name: 'Blöjpatrullen',   emoji: '🍼', color: 'var(--blue)' },
+  team2: { name: 'Nappkommissionen', emoji: '🧸', color: 'var(--purple)' },
+  team3: { name: 'Vällingmaffian',  emoji: '🥣', color: 'var(--accent)' },
 };
 
-const CLUES = {
+const PHASE3_SECS = 7 * 60;
+
+// ============================================================
+// SPELDATA — 3 faser med dossiers
+// ============================================================
+const PHASES = {
   1: {
-    team1: {
-      id: 'p1t1',
-      label: '📱 SMS från Louise (igår kväll)',
-      content: '"Hittade inte nyckeln i hallen btw, lade den på rätt ställe efteråt. Kram! ❤️"',
+    title: 'Kaoset hemma',
+    story: 'Klockan var <b class="blank" data-key="tid">TID</b>. "Det är dags!" skrek Louise. Jag rusade till <b class="blank" data-key="rum1">RUM 1</b> — men BB-väskan var borta. Louise hade flyttat den till <b class="blank" data-key="rum2">RUM 2</b> igår kväll, efter att hon <b class="blank" data-key="handelse">HÄNDELSE</b>. Bilnyckeln låg som alltid <b class="blank" data-key="plats">PLATS</b>.',
+    blanks: {
+      tid:      { label: 'TID',            answers: ['23:15'] },
+      rum1:     { label: 'RUM 1',          answers: ['hallen'] },
+      rum2:     { label: 'RUM 2',          answers: ['sovrummet', 'sovrum'] },
+      handelse: { label: 'HÄNDELSE',       answers: ['städade', 'fixade bebishörnan', 'städade och fixade bebishörnan', 'hon städade'] },
+      plats:    { label: 'PLATS',          answers: ['vid badrumsspegeln', 'badrumsspegeln', 'badrummet', 'badrum'] },
     },
-    team2: {
-      id: 'p1t2',
-      label: '📸 Foto – Köket (David skickade igår)',
-      content: 'Bild på krokarna vid kylskåpet. Alla är tomma.\nBildtext: "Var är nyckeln nu igen?? 😅"',
-    },
-    team3: {
-      id: 'p1t3',
-      label: '🗒️ Post-it på kylskåpet',
-      content: '"Davids REGEL #1:\nNyckeln hänger ALLTID på kroken vid badrumsspegeln.\nALLTID. Inga undantag. /L 😘"',
+    dossiers: {
+      team1: {
+        title: '📱 SMS-logg — Louise & Davids chatt',
+        lines: [
+          ['Fre 14:02 — Louise: "Glöm inte hämta paketet på Ica. De stänger 20."', false],
+          ['Fre 14:03 — David: "Ska försöka. Har du sett mina löparskor?"', false],
+          ['Fre 14:05 — Louise: "I tvättstugan. Som alltid."', false],
+          ['', false],
+          ['Lör 08:30 — Louise: "Svärmor ringer ikväll kl 19. Svara snällt."', false],
+          ['Lör 08:31 — David: "Ok. Ska vi bjuda Johan på middag?"', false],
+          ['Lör 08:33 — Louise: "Ja! Men jag lagar inte. Du får beställa pizza."', false],
+          ['', false],
+          ['Lör 14:10 — Louise: "Flyttade BB-väskan från C3 till B1 idag. C3 är för trångt för att ha den där."', true],
+          ['Lör 14:11 — Louise: "Städade även hela L2 och fixade bebishörnan färdigt! Så skönt att det äntligen är gjort ❤️"', true],
+          ['Lör 14:15 — David: "Grymt! Men C3 var ju praktiskt — nära dörren."', false],
+          ['Lör 14:16 — Louise: "B1 är NÄRMARE dörren!!! Och har walk-in closet där väskan får plats."', false],
+          ['', false],
+          ['Lör 21:30 — Louise: "Middagen var trevlig. Johan hälsar! Jag är helt slut, går och lägger mig. God natt ❤️"', false],
+          ['Lör 21:45 — David: "Sov gott! Jag stannar uppe lite till."', false],
+          ['Lör 23:59 — David: "Spelar klart den här rundan bara..."', false],
+          ['Sön 01:15 — David: "Oj vad sent det blev. Går och lägger mig nu."', false],
+        ],
+        answerLabel: 'Två saker att berätta för David:\n1. Vart flyttades BB-väskan?\n2. Vad gjorde Louise igår kväll?\n\n(OBS: Ni ser rumskoder som B1, C3 — fråga 🧸 Nappkommissionen vad de betyder!)',
+        answerFields: ['rum2','handelse'],
+      },
+      team2: {
+        title: '🏠 Husets Planlösning & Rumsförteckning',
+        lines: [
+          ['━━ RUMSKODER & BESKRIVNINGAR ━━', false],
+          ['', false],
+          ['A7 → Stort rum. Här lagas mat. Kyl, frys, spis, köksö i mitten. Matsalsbord med 6 stolar.', false],
+          ['     (Svårt att missa — det är här pizzan kommer ifrån.)', false],
+          ['', false],
+          ['B1 → Här sover man. Dubbelsäng, garderober, walk-in closet, mörkläggningsgardiner.', false],
+          ['     Väckarklocka på nattduksbordet. Närmast ytterdörren av alla rum.', true],
+          ['', false],
+          ['B2 → Badrum med dusch, badkar, handfat, stor spegel, och en krok bredvid spegeln.', false],
+          ['     (Den kroken är tom just nu.)', false],
+          ['', false],
+          ['C3 → Ljust rum mot gatan. Ytterkläder hänger här. Skohylla, hatthylla, krokar för jackor.', false],
+          ['     Trångt — definitivt inte plats för en BB-väska.', true],
+          ['', false],
+          ['L2 → Största rummet i huset. TV, soffa, bokhylla (med Davids brädspelssamling).', false],
+          ['     Golvvärme. Här har Louise ställt en spjälsäng och ett skötbord.', false],
+          ['     (Detta är bebishörnan som Louise nämner.)', false],
+          ['', false],
+          ['D1 → Gästrum. Extra säng, skrivbord. Johan sover här när han sover över.', false],
+          ['', false],
+          ['━━ VIKTIGT ATT VETA ━━', false],
+          ['BB-väskan packades ursprungligen i C3 för att vara "nära dörren".', true],
+          ['Krokarna i C3 är för jackor — inte nycklar.', false],
+        ],
+        answerLabel: 'En sak att berätta för David:\nVar fanns BB-väskan från början?\n\n⚠️ OBS: Berätta för 🍼 Blöjpatrullen vad rumskoderna B1, C3, L2 betyder — de kommer behöva er hjälp!',
+        answerFields: ['rum1'],
+      },
+      team3: {
+        title: '📅 Louises Kalender — Vecka 20 (maj)',
+        lines: [
+          ['MÅNDAG 15/5', false],
+          ['  08:00 — Jobbmöte', false],
+          ['  12:00 — Lunch med kollegorna', false],
+          ['  15:30 — Barnmorskebesök (rutin)', false],
+          ['  19:00 — Yoga för gravida', false],
+          ['', false],
+          ['TISDAG 16/5', false],
+          ['  18:00-21:00 — FÖRLOSSNINGSKURS: Andningsteknik & smärtlindring', false],
+          ['', false],
+          ['ONSDAG 17/5', false],
+          ['  10:00 — Handla BB-grejer (blöjor, amnings-bh, mm)', false],
+          ['  14:00 — Tandläkaren', false],
+          ['', false],
+          ['TORSDAG 18/5', false],
+          ['  LEDIG DAG — vila, läsa, bingewatcha serier', false],
+          ['', false],
+          ['FREDAG 19/5', false],
+          ['  11:00 — Sista barnmorskebesöket innan förlossning', false],
+          ['  16:00 — Hämta mamma på Centralen', false],
+          ['', false],
+          ['★ LÖRDAG 20/5 — DAGEN FÖRE FÖRLOSSNINGEN ★', true],
+          ['  09:00 — Frukost med David (pannkakor!)', false],
+          ['  10:30 — Sista-minuten-handling på Ica', false],
+          ['  14:00 — Vila (känner tryck i ryggen... tidiga värkar?)', false],
+          ['  18:00 — Middag: pizza (David beställde)', false],
+          ['  21:00 — ★ STÄDADE BEBISHÖRNAN + flyttade BB-väskan ★', true],
+          ['  22:30 — Somnade i soffan, helt utmattad', false],
+          ['  23:15 — ★ Första STARKA värken! Ringde barnmorskan ★', true],
+          ['  23:20 — Dags att åka! Letar bilnyckeln...', false],
+          ['  Notering i marginalen: "NYCKELN: Regel #1 — vid badrumsspegeln" ✅', true],
+          ['', false],
+          ['SÖNDAG 21/5 — ★ FÖRLOSSNINGSDAGEN ★', false],
+        ],
+        answerLabel: 'Två saker att berätta för David:\n1. Vilket klockslag kom första starka värken?\n2. Var låg bilnyckeln?\n\n(Kolla kalendern noga — svaren finns i lördagens poster.)',
+        answerFields: ['tid','plats'],
+      },
     },
   },
+
   2: {
-    team1: {
-      id: 'p2t1',
-      label: '📋 Personalschema (kväll)',
-      content: 'Jourhavande barnmorska 18:00–06:00:\n\nDr. L. Lindqvist\nAvdelning: BB-2',
+    title: 'Sjukhuslabyrinten',
+    story: 'Sjukhuset var kaos — en <b class="blank" data-key="orsak">ORSAK</b> hade tvingat <b class="blank" data-key="avd">AVDELNING</b> att tillfälligt flytta till plan <b class="blank" data-key="vaning">VÅNING</b>. Barnmorskan <b class="blank" data-key="namn">NAMN</b> — den enda på <b class="blank" data-key="skift">SKIFT</b>-skiftet med rätt kompetens — tog emot oss. Hon visade oss till rum <b class="blank" data-key="rum">RUM</b>, reserverat för Riknert.',
+    blanks: {
+      orsak:  { label: 'ORSAK',     answers: ['vattenskada', 'vattenläcka'] },
+      avd:    { label: 'AVDELNING', answers: ['bb-2', 'bb2', 'bb 2'] },
+      vaning: { label: 'VÅNING',    answers: ['4', 'fyra', 'plan 4'] },
+      namn:   { label: 'NAMN',      answers: ['lindqvist', 'dr lindqvist', 'l lindqvist'] },
+      skift:  { label: 'SKIFT',     answers: ['natt', 'nattskift'] },
+      rum:    { label: 'RUM',       answers: ['102', 'bb-102', 'bb102'] },
     },
-    team2: {
-      id: 'p2t2',
-      label: '🚪 BB-Rumslista',
-      content: 'Rum BB-101: BELAGT (Svensson)\nRum BB-102: LEDIGT — reserverat Karlsson ✓\nRum BB-103: BELAGT (Eriksson)',
-    },
-    team3: {
-      id: 'p2t3',
-      label: '⚗️ Lustgas-instruktion (standard)',
-      content: 'FÖRLOSSNINGSGAS STANDARDMIX:\n• Kvävgas (N₂O): 1 del\n• Syrgas (O₂): 2 delar\nTotalt: 3 delar',
+    dossiers: {
+      team1: {
+        title: '📋 Personallista — Sjukhuset (kväll/natt)',
+        lines: [
+          ['PERSONAL I TJÄNST 18:00–06:00', false],
+          ['═══════════════════════════════', false],
+          ['', false],
+          ['Anna Ekström    | Undersköterska | Ortopeden    | Dagtid   | Gipsning', false],
+          ['Björn Falk      | Läkare         | Akuten       | Natt     | Trauma', false],
+          ['Carina Gustafsson| Barnmorska     | Förlossningen| Natt     | Vattenfödsel', false],
+          ['David Holm      | Undersköterska | BB-2         | Dagtid   | Provtagning', false],
+          ['Eva Isaksson    | Barnmorska     | BB-1         | Natt     | Amningshjälp', false],
+          ['Fredrik Jansson | Läkare         | IVA          | Dagtid   | Intubation', false],
+          ['Greta Karlsson  | Barnmorska     | BB-2         | Dagtid   | Neonatal vård', false],
+          ['Hans Larsson    | Undersköterska | Förlossningen| Dagtid   | Assistera', false],
+          ['Ingrid Malm     | Barnmorska     | Ortopeden    | Natt     | Ingen (!)', false],
+          ['Jan Nilsson     | Läkare         | BB-1         | Natt     | Kirurgi', false],
+          ['Karin Olsson    | Barnmorska     | BB-2         | Natt     | Neonatal', false],
+          ['★ L. Lindqvist  | Barnmorska     | BB-2         | Natt     | Neonatal vård ★', true],
+          ['', false],
+          ['═══════════════════════════════', false],
+          ['Er uppgift: Hitta rätt barnmorska — den som:', false],
+          ['1. Är barnmorska', false],
+          ['2. Jobbar på nattskiftet', false],
+          ['3. Tillhör rätt avdelning (BB-2)', false],
+        ],
+        answerLabel: 'Vad heter barnmorskan som ska ta emot Riknert?\n(Titta på listan: rätt avdelning + rätt skift.)',
+        answerFields: ['namn'],
+      },
+      team2: {
+        title: '🏥 Sjukhuskarta & Renoveringsnotis',
+        lines: [
+          ['SJUKHUSKARTA — Våning för våning', false],
+          ['═══════════════════════════════', false],
+          ['', false],
+          ['PLAN 5 — Takvåning: Helikopterplatta, fläktrum', false],
+          ['', false],
+          ['PLAN 4 — Avdelning BB-1  +  BB-2  (TEMPORÄRT — se notis!)', true],
+          ['', false],
+          ['PLAN 3 — Ortopeden, Röntgen, Provtagning', false],
+          ['', false],
+          ['PLAN 2 — Akuten, IVA, Operation (normalt BB-1 & BB-2 här)', false],
+          ['', false],
+          ['PLAN 1 — Entré, Reception, Café, Apotek', false],
+          ['', false],
+          ['', false],
+          ['═══════════════════════════════', false],
+          ['', false],
+          ['📋 RENOVERINGSNOTIS — 19 maj', false],
+          ['', false],
+          ['"På grund av en ALLVARLIG VATTENSKADA natten till 18:e maj', false],
+          ['på plan 2 (drabbade Akuten + BB-avdelningarna) har BB-1 och BB-2', false],
+          ['tillfälligt flyttats till PLAN 4. Flytten gäller från 19 maj och', false],
+          ['minst 4 veckor framåt."', true],
+          ['', false],
+          ['Signerat: Sjukhusledningen', false],
+        ],
+        answerLabel: 'Två saker att berätta för David:\n1. Vilken avdelning flyttades?\n2. Till vilken våning?\n\n⚠️ Berätta även för 🍼 Blöjpatrullen vilken avdelning de ska filtrera på!',
+        answerFields: ['avd','vaning'],
+      },
+      team3: {
+        title: '🚪 Rumslogg — Beläggning BB-2',
+        lines: [
+          ['BELÄGGNING — Avdelning BB-2 — Plan 4', false],
+          ['Uppdaterad: 21 maj — 01:00', false],
+          ['═══════════════════════════════', false],
+          ['', false],
+          ['Rum 101 | Pettersson, Maja       | BELAGT   | Ankomst: 20 maj', false],
+          ['Rum 102 | ★ Reserverat: Riknert ★ | LEDIGT   | Ankomst: Väntas under natten', true],
+          ['Rum 103 | Eriksson, Linn         | BELAGT   | Ankomst: 21 maj', false],
+          ['Rum 104 | Rickardsson, Johan     | BELAGT   | Ankomst: 19 maj', false],
+          ['Rum 105 | Rydberg, Anna          | BELAGT   | Ankomst: 20 maj', false],
+          ['Rum 106 | Reserverat: Mårtensson | LEDIGT   | Ankomst: Väntas 22 maj', false],
+          ['Rum 107 | Svensson, Petra        | BELAGT   | Ankomst: 21 maj', false],
+          ['Rum 108 | Reserverat: Renqvist   | LEDIGT   | Ankomst: Väntas 23 maj', false],
+          ['', false],
+          ['═══════════════════════════════', false],
+          ['OBS! Flera reserverade rum har liknande namn.', false],
+          ['Ni måste hitta rätt för Riknert, inte Rickardsson/Rydberg/Renqvist!', false],
+        ],
+        answerLabel: 'Vilket rumsnummer är reserverat för Riknert?\n(Läs noga — flera liknande namn finns!)',
+        answerFields: ['rum'],
+      },
     },
   },
+
   3: {
-    team1: {
-      id: 'p3t1',
-      label: '👶 Observation – Förlossningssalen',
-      content: 'Vagn A: Blå mössa 🔵, verkar lugn, sover\nVagn B: Rosa mössa 🩷, skriker, arg',
+    title: 'Rädda Samuel',
+    story: 'Två bebisar i rummet. Sköterskan pekade: "Den med <b class="blank" data-key="farg">FÄRG</b> mössa är er — Samuel." Han väger <b class="blank" data-key="vikt">VIKT</b> kg, precis som journalen. ID-armbandet bekräftar: <b class="blank" data-key="id">ID</b>. Välkommen till världen, <b class="blank" data-key="namn">NAMN</b> von Martens. 👶',
+    blanks: {
+      farg: { label: 'FÄRG',   answers: ['blå', 'blå mössa', 'blåa', 'blå mössan'] },
+      vikt: { label: 'VIKT',   answers: ['3,2', '3.2', '3,2 kg', '3.2 kg'] },
+      id:   { label: 'ID',     answers: ['#1047', '1047'] },
+      namn: { label: 'NAMN',   answers: ['samuel'] },
     },
-    team2: {
-      id: 'p3t2',
-      label: '📋 Patientjournal – Louise Karlsson',
-      content: 'Förväntat vikt: 3,2 kg\nKön: Pojke 👦\nID-nummer slutar på: ...7',
-    },
-    team3: {
-      id: 'p3t3',
-      label: '⚖️ Vågresultat + ID-armband',
-      content: 'Vagn A: 3,2 kg | Armband-ID: #1047\nVagn B: 3,8 kg | Armband-ID: #1038',
+    dossiers: {
+      team1: {
+        title: '👩‍⚕️ Sköterskans Observationslogg — Nattpasset',
+        lines: [
+          ['NATTPASSETS OBSERVATIONER — 21 maj — 02:30', false],
+          ['═══════════════════════════════', false],
+          ['', false],
+          ['02:00 — Rond. Båda bebisarna sover.', false],
+          ['02:05 — Vagn A: Sover djupt, andas lugnt. Färg: BLÅ mössa.', false],
+          ['02:05 — Vagn B: Orolig, grymtar. Färg: ROSA mössa.', false],
+          ['', false],
+          ['02:15 — Blöjbyte Vagn A. Ingen gråt. Mycket lugn bebis.', false],
+          ['02:18 — Blöjbyte Vagn B. Skriker direkt. Väldigt argsint bebis.', false],
+          ['', false],
+          ['02:25 — Matning Vagn A: Tar flaskan fint, suger jämnt.', false],
+          ['02:25 — Matning Vagn B: Vägrar flaskan först, men tar den sen.', false],
+          ['', false],
+          ['02:30 — Notering från barnmorskan: "Vagn A tillhör Riknert." ✓', true],
+          ['02:30 — Vagn B tillhör Eriksson.', false],
+          ['', false],
+          ['═══════════════════════════════', false],
+          ['Er uppgift: Beskriv för David vilken bebis som är Samuel.', false],
+          ['Be 🧸 Nappkommissionen om info ur journalen för att vara säkra!', false],
+        ],
+        answerLabel: 'Vilken mössa har Samuel (Riknerts bebis)?\n(Prata med 🧸 Nappkommissionen — de har journalen!)',
+        answerFields: ['farg'],
+      },
+      team2: {
+        title: '📋 Patientjournal — Louise Riknert',
+        lines: [
+          ['PATIENTJOURNAL — Louise Riknert', false],
+          ['═══════════════════════════════', false],
+          ['', false],
+          ['Besök 1 (v.10): Blodtryck 120/80. Järnvärde normalt.', false],
+          ['', false],
+          ['Besök 2 (v.18): Ultraljud — allt ser bra ut. SF-mått 15 cm.', false],
+          ['  Kön: Pojke 👦', true],
+          ['', false],
+          ['Besök 3 (v.24): Blodtryck 118/76. Glukosbelastning OK.', false],
+          ['  Ultraljud: viktuppskattning 0,8 kg.', false],
+          ['', false],
+          ['Besök 4 (v.30): SF-mått 28 cm. Järnvärde lite lågt — ordineras tillskott.', false],
+          ['  Ultraljud: viktuppskattning 1,6 kg.', false],
+          ['', false],
+          ['Besök 5 (v.36): Blodtryck 122/82. SF-mått 33 cm.', false],
+          ['  Förväntad födelsevikt: 3,2 kg.', true],
+          ['  Fosterläge: Huvud nedåt (bra!).', false],
+          ['  ID-nummer slutar på siffran: 7.', true],
+          ['', false],
+          ['Besök 6 (v.39 — 19 maj): Allt normalt. Väntar på förlossning.', false],
+          ['  Livmoderhals: 2 cm öppen. "Kan starta när som helst."', false],
+          ['', false],
+          ['═══════════════════════════════', false],
+          ['Er uppgift: Hitta Samuels förväntade vikt och ID-ledtråd.', false],
+          ['Dela denna info med 🍼 Blöjpatrullen och 🥣 Vällingmaffian!', false],
+        ],
+        answerLabel: 'Två saker att berätta för David:\n1. Vilken vikt förväntas Samuel ha?\n2. Vad slutar ID-numret på?\n\n⚠️ Dela även denna info med de andra lagen!',
+        answerFields: ['vikt'],
+      },
+      team3: {
+        title: '⚖️ Vågresultat & ID-registrering — Förlossningen',
+        lines: [
+          ['VÅG & ID-ARMBAND — Registrering 21 maj', false],
+          ['═══════════════════════════════', false],
+          ['', false],
+          ['Följande bebisar har vägts och fått ID-armband inatt:', false],
+          ['', false],
+          ['Bebis #1043 | Vikt: 3,5 kg | Kön: Flicka | Mamma: Pettersson | Kl: 01:30', false],
+          ['Bebis #1045 | Vikt: 3,0 kg | Kön: Pojke  | Mamma: Eriksson  | Kl: 01:45', false],
+          ['Bebis #1047 | Vikt: 3,2 kg | Kön: Pojke  | Mamma: Riknert    | Kl: 02:10', true],
+          ['Bebis #1048 | Vikt: 3,8 kg | Kön: Pojke  | Mamma: Svensson   | Kl: 02:15', false],
+          ['Bebis #1050 | Vikt: 3,1 kg | Kön: Flicka | Mamma: Rydberg    | Kl: 02:30', false],
+          ['Bebis #1052 | Vikt: 3,6 kg | Kön: Pojke  | Mamma: Rickardsson | Kl: 02:40', false],
+          ['', false],
+          ['═══════════════════════════════', false],
+          ['OBS: Många bebisar! Ni måste:', false],
+          ['1. Hitta rätt mamma (Riknert)', false],
+          ['2. Fråga 🧸 Nappkommissionen om förväntad vikt för att dubbelkolla', false],
+        ],
+        answerLabel: 'Två saker att berätta för David:\n1. Vilket ID har Samuels armband?\n2. Vad heter bebisen?\n\n(Fråga 🧸 Nappkommissionen om vikten för att verifiera!)',
+        answerFields: ['id','namn'],
+      },
     },
   },
 };
-
-const PHASE3_SECS = 3 * 60;
 
 // ============================================================
 // STATE
 // ============================================================
 const role = new URLSearchParams(location.search).get('role');
 
-let gamePhase     = 1;
-let sentClues     = {};
-let davidClues    = {};
-let phase3Start   = null;
-let timerInterval = null;
-let selectedRoom  = null;
-let selectedBaby  = null;
-const gas = { nitrous: 1, oxygen: 2 };
+let gamePhase      = 1;
+let answers        = {};
+let phase3Start    = null;
+let timerInterval  = null;
+let teamAnswers    = {};
 
 // ============================================================
 // FIREBASE HELPERS
 // ============================================================
 async function ensureGame() {
   const snap = await get(ref(db, 'game/phase'));
-  if (!snap.exists()) await set(ref(db, 'game/phase'), 1);
+  if (!snap.exists()) await set(ref(db, 'game'), { phase: 1 });
 }
 
-async function sendClueToFirebase(phase, teamRole, clue) {
-  await update(ref(db), {
-    [`game/clues/${clue.id}`]: true,
-    [`game/davidClues/${clue.id}`]: {
-      label: clue.label, content: clue.content,
-      phase, team: teamRole, timestamp: Date.now(),
-    },
-  });
+async function submitAnswerToFirebase(blankKey, answer, phase, teamRole) {
+  const data = {};
+  data[`game/answers/${blankKey}`] = answer;
+  data[`game/teamAnswers/${teamRole}/${blankKey}`] = true;
+  await update(ref(db), data);
 }
 
 async function advancePhase(next) {
   const updates = { 'game/phase': next };
   if (next === 3) updates['game/phase3Start'] = Date.now();
+  if (next === 1) updates['game/answers'] = {};
+  if (next === 1) updates['game/teamAnswers'] = {};
   await update(ref(db), updates);
 }
 
 async function resetGame() {
   await set(ref(db, 'game'), { phase: 1 });
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function matchAnswer(typed, accepted) {
+  const lower = typed.trim().toLowerCase();
+  return accepted.some(a => lower.includes(a.toLowerCase()) || a.toLowerCase().includes(lower));
+}
+
+function isBlankFilled(key) { return !!answers[key]; }
+function countFilled(phase) {
+  return Object.keys(PHASES[phase]?.blanks || {}).filter(k => answers[k]).length;
+}
+function totalBlanks(phase) {
+  return Object.keys(PHASES[phase]?.blanks || {}).length;
 }
 
 // ============================================================
@@ -413,9 +631,8 @@ function renderSetup() {
   appEl.innerHTML = `
     <div style="padding-top:32px;">
       <h1 style="font-size:22px;color:var(--accent);">⚙️ Firebase ej konfigurerat</h1>
-      <div class="setup-box">
-        <p>Öppna <code>index.html</code> och byt ut <code>FIREBASE_CONFIG</code> mot din riktiga konfiguration.</p>
-        <p style="margin-top:8px;">Instruktioner finns i kommentarerna i koden (sök på "BYTA UT").</p>
+      <div style="background:rgba(255,159,67,0.08);border:1px solid var(--accent);border-radius:12px;padding:16px;font-size:14px;line-height:1.7;margin-top:16px;">
+        <p>Öppna <code style="background:var(--surface2);padding:2px 5px;border-radius:4px;">index.html</code> och byt ut <code style="background:var(--surface2);padding:2px 5px;border-radius:4px;">FIREBASE_CONFIG</code> mot din riktiga konfiguration.</p>
       </div>
     </div>`;
 }
@@ -430,21 +647,20 @@ function renderRoleSelect() {
     </div>
     <div class="role-grid">
       <div class="role-btn" onclick="gotoRole('david')">
-        <div class="role-emoji">🎯</div>
-        <div class="role-name">David</div>
-        <div class="role-desc">Lös mysteriet med lagets ledtrådar</div>
+        <div class="role-emoji">🎯</div><div class="role-name">David</div>
+        <div class="role-desc">Lös mysteriet med lagens ledtrådar</div>
       </div>
       <div class="role-btn" onclick="gotoRole('team1')">
         <div class="role-emoji">🍼</div><div class="role-name">Blöjpatrullen</div>
-        <div class="role-desc">Skicka ledtrådar till David</div>
+        <div class="role-desc">Tolka dold information & skicka till David</div>
       </div>
       <div class="role-btn" onclick="gotoRole('team2')">
         <div class="role-emoji">🧸</div><div class="role-name">Nappkommissionen</div>
-        <div class="role-desc">Skicka ledtrådar till David</div>
+        <div class="role-desc">Tolka dold information & skicka till David</div>
       </div>
       <div class="role-btn" onclick="gotoRole('team3')">
         <div class="role-emoji">🥣</div><div class="role-name">Vällingmaffian</div>
-        <div class="role-desc">Skicka ledtrådar till David</div>
+        <div class="role-desc">Tolka dold information & skicka till David</div>
       </div>
       <div class="role-btn" onclick="gotoRole('admin')" style="opacity:0.55;grid-column:1/-1;">
         <div class="role-emoji">🔧</div><div class="role-name">Admin (Johan)</div>
@@ -461,157 +677,181 @@ window.gotoRole = function(r) {
 // --- David ---
 function renderDavid() {
   const phase = gamePhase;
-  const story = {
-    1: 'Louise har fått värkar — det är dags! Ni måste till sjukhuset NU. Men var är bilnyckeln? <strong>Lagen har information som hjälper dig lista ut det med uteslutningsmetoden.</strong>',
-    2: 'Ni är på sjukhuset — men det är total kaos! Ni behöver lösa tre saker:<br>1. Hitta <strong>rätt barnmorska</strong><br>2. Boka <strong>rätt rum</strong><br>3. Blanda <strong>rätt lustgas</strong>',
-    3: '⚠️ <strong>KRIS!</strong> Ni fick tillbaka <em>fel bebis</em> från undersökningen! Lista ut vilken bebis som är er — <strong>innan Louise märker!</strong>',
-  };
+  const data  = PHASES[phase];
+  if (!data) return;
+
+  const filled = countFilled(phase);
+  const total  = totalBlanks(phase);
+
+  const storyHtml = data.story.replace(
+    /<b class="blank" data-key="([^"]+)">([^<]+)<\/b>/g,
+    (match, key, label) => {
+      if (answers[key]) {
+        return `<span class="blank filled">${answers[key]}</span>`;
+      }
+      return match;
+    }
+  );
 
   appEl.innerHTML = `
-    <div class="header">🎯 David<span class="phase-badge">Fas ${phase}/3</span></div>
+    <div class="header">🎯 David<span class="phase-badge">Fas ${phase}/3 — ${data.title}</span></div>
     ${phase === 3 ? '<div id="timer-box"></div>' : ''}
+    <div class="progress">🔍 ${filled}/${total} luckor ifyllda</div>
+    <div class="lucktext">${storyHtml}</div>
     <div class="card">
-      <h2>📖 Din situation</h2>
-      <p style="font-size:15px;line-height:1.7;">${story[phase]}</p>
+      <h2>📖 Situation</h2>
+      <p style="font-size:14px;line-height:1.7;color:var(--text-dim);">
+        ${phase === 1 ? 'Lagen söker igenom sms, husritningar och Louises kalender för att hjälpa dig fylla i luckorna. Prata med dem!' : ''}
+        ${phase === 2 ? 'Lagen granskar personallistor, sjukhuskartor och rumsloggar. Alla måste samarbeta för att hitta rätt.' : ''}
+        ${phase === 3 ? '⏱️ <strong>7 minuter kvar!</strong> Lagen analyserar observationsloggar, journaler och ID-register för att hitta Samuel.' : ''}
+      </p>
     </div>
-    <div class="section-label">📬 Ledtrådar från lagen</div>
-    <div id="david-clues"></div>
-    <hr class="sep">
-    <div class="section-label">🔐 Lös pusslet</div>
-    ${buildPuzzleHtml(phase)}`;
+    ${filled === total
+      ? `<button class="btn btn-primary" onclick="davidAdvance()">✅ Alla luckor ifyllda — ${phase < 3 ? 'Fortsätt till fas '+(phase+1) : 'Slutför uppdraget!'}</button>`
+      : '<div class="waiting">Väntar på att lagen skickar sina svar… ⏳</div>'}`;
 
-  refreshDavidClues();
   if (phase === 3) startTimer();
 }
+window.davidAdvance = function() {
+  const phase = gamePhase;
+  if (phase < 3) advancePhase(phase + 1);
+  else advancePhase('victory');
+};
 
-function refreshDavidClues() {
-  const el = document.getElementById('david-clues');
-  if (!el) return;
-  const current = Object.values(davidClues)
-    .filter(c => c.phase == gamePhase)
-    .sort((a, b) => a.timestamp - b.timestamp);
-  if (current.length === 0) {
-    el.innerHTML = '<div class="empty-clues">Väntar på ledtrådar från lagen… ⏳</div>';
-  } else {
-    el.innerHTML = current.map(c => `
-      <div class="clue-card phase-${c.phase}">
-        <div class="clue-label">${c.label}</div>
-        <div class="clue-content">${c.content}</div>
-        <div class="clue-from">${TEAM_INFO[c.team]?.emoji || ''} ${TEAM_INFO[c.team]?.name || c.team}</div>
-      </div>`).join('');
+// --- Team ---
+function renderTeam(teamRole) {
+  const phase = gamePhase;
+  const data  = PHASES[phase];
+  const info  = TEAM_INFO[teamRole];
+  const doss  = data?.dossiers?.[teamRole];
+  if (!data || !doss) {
+    appEl.innerHTML = `
+      <div class="header">${info.emoji} ${info.name}<span class="phase-badge">Fas ${phase}/3</span></div>
+      <div class="waiting">Väntar…</div>`;
+    return;
   }
+
+  const hasAnswered = doss.answerFields.every(f => teamAnswers[teamRole]?.[f]);
+
+  const dossierHtml = doss.lines.map(([text, hl]) =>
+    text === ''
+      ? '<div style="height:8px;"></div>'
+      : `<div class="dossier-line ${hl ? 'highlight' : ''}">${text}</div>`
+  ).join('');
+
+  appEl.innerHTML = `
+    <div class="header">${info.emoji} ${info.name}<span class="phase-badge">Fas ${phase}/3 — ${data.title}</span></div>
+    ${phase === 3 ? '<div class="alert-banner alert-red">⚠️ 7 minuters timer aktiv! Hjälp David hitta Samuel NU!</div>' : ''}
+    <div class="section-label">📂 Er dossier</div>
+    <div class="dossier-card">${dossierHtml}</div>
+    ${hasAnswered
+      ? `<div class="btn btn-sent" style="margin-bottom:12px;">✅ Svar skickat till David!</div>`
+      : `
+        <div class="card">
+          <div class="puzzle-label">${doss.answerLabel}</div>
+          <input class="puzzle-input" id="team-answer" placeholder="Skriv ert svar här…" autocomplete="off">
+          <div class="feedback" id="team-fb"></div>
+          <button class="btn btn-primary" onclick="teamSubmit('${teamRole}')">📤 Skicka till David</button>
+        </div>`
+    }
+    <div class="waiting">${phase === 3 ? '⏱️ Varje sekund räknas!' : 'Arbeta tillsammans — prata med de andra lagen!'}</div>`;
+}
+window.teamSubmit = function(teamRole) {
+  const phase = gamePhase;
+  const data  = PHASES[phase];
+  const doss  = data?.dossiers?.[teamRole];
+  const fb    = document.getElementById('team-fb');
+  if (!doss) return;
+
+  const raw = document.getElementById('team-answer')?.value || '';
+  const parts = raw.split(',').map(p => p.trim()).filter(Boolean);
+
+  if (parts.length < doss.answerFields.length) {
+    showFb(fb, 'error', `Ni måste svara på alla ${doss.answerFields.length} punkter. Separera med kommatecken.`);
+    return;
+  }
+
+  const fields = doss.answerFields;
+  const blanks = data.blanks;
+  let allOk = true;
+
+  for (let i = 0; i < fields.length; i++) {
+    const key  = fields[i];
+    const part = parts[i] || '';
+    const acc  = blanks[key]?.answers || [];
+    if (!matchAnswer(part, acc)) {
+      allOk = false;
+      showFb(fb, 'error', `"${part}" stämmer inte för ${blanks[key]?.label || key}. Läs dossieren igen!`);
+      break;
+    }
+  }
+
+  if (allOk) {
+    for (let i = 0; i < fields.length; i++) {
+      const key = fields[i];
+      const part = parts[i];
+      submitAnswerToFirebase(key, part, phase, teamRole);
+    }
+    showFb(fb, 'success', '✅ Rätt! Skickat till David.');
+    document.getElementById('team-answer').disabled = true;
+  }
+};
+
+// --- Admin ---
+function renderAdmin() {
+  const phase      = gamePhase;
+  const data       = PHASES[phase];
+  const blankCount = data ? totalBlanks(phase) : 0;
+  const filled     = data ? countFilled(phase) : 0;
+
+  let statusRows = '';
+  if (data) {
+    statusRows = Object.entries(data.blanks).map(([key, b]) => {
+      const icon = answers[key] ? '🟢' : '🔲';
+      const val  = answers[key] || '—';
+      return `<div style="line-height:2.2;font-size:14px;">${icon} <strong>${b.label}</strong>: ${val}</div>`;
+    }).join('');
+  }
+
+  appEl.innerHTML = `
+    <div class="header">🔧 Admin<span class="phase-badge">Fas ${phase === 'victory' ? '✓' : `${phase}/3`}</span></div>
+    <div class="card">
+      <h2>Luckor ifyllda: ${filled}/${blankCount}</h2>
+      ${statusRows}
+    </div>
+    <div class="section-label">Hoppa till fas</div>
+    <button class="btn btn-secondary" onclick="adminSet(1)" style="margin-bottom:6px;">→ Fas 1: Kaoset hemma</button>
+    <button class="btn btn-secondary" onclick="adminSet(2)" style="margin-bottom:6px;">→ Fas 2: Sjukhuslabyrinten</button>
+    <button class="btn btn-secondary" onclick="adminSet(3)" style="margin-bottom:6px;">→ Fas 3: Rädda Samuel (7min timer)</button>
+    <button class="btn btn-secondary" onclick="adminSet('victory')" style="margin-bottom:12px;">→ Victory</button>
+    <button class="btn btn-secondary" onclick="adminReset()" style="background:rgba(232,67,147,0.2);border-color:var(--red);color:var(--red);">🔄 Återställ spelet</button>`;
+}
+window.adminSet   = p => advancePhase(p);
+window.adminReset = async () => { if (confirm('Återställ hela spelet?')) await resetGame(); };
+
+// --- Victory ---
+function renderVictory() {
+  stopTimer();
+  appEl.innerHTML = `
+    <div class="victory">
+      <div class="big">🎉</div>
+      <h1>Välkommen till världen, Samuel!</h1>
+      <p>Ni löste alla mysterier tillsammans — lagens detektivarbete och Davids beslutsamhet räddade dagen.</p>
+      <p style="margin-top:24px;font-size:22px;color:var(--green);">Samuel von Martens 👶<br><span style="font-size:14px;color:var(--text-dim);">21 maj — 3,2 kg — 51 cm</span></p>
+      <p style="margin-top:36px;font-size:13px;color:var(--text-dim);">Operation: Fel Bebis — slutförd ✓<br>Grattis David & Louise Riknert! 🎁</p>
+    </div>`;
 }
 
-function buildPuzzleHtml(phase) {
-  if (phase === 1) return `
-    <p style="font-size:14px;color:var(--text-dim);margin-bottom:12px;">Var hänger bilnyckeln?</p>
-    ${['🚪 Hallen','🍳 Köket','🛋️ Vardagsrummet','🪥 Badrummet'].map(r => {
-      const val = r.split(' ')[1];
-      return `<button class="btn-choice" id="choice-${val}" onclick="pickRoom('${val}')">${r}</button>`;
-    }).join('')}
-    <div class="feedback" id="p1-fb"></div>
-    <button class="btn btn-primary" style="margin-top:8px;" onclick="checkP1()">Lås upp 🔑</button>`;
-
-  if (phase === 2) return `
-    <div class="card">
-      <h2>1. Barnmorskans efternamn</h2>
-      <div class="puzzle-label">Skriv efternamnet:</div>
-      <input class="puzzle-input" id="p2-doctor" placeholder="t.ex. Svensson" autocomplete="off">
-    </div>
-    <div class="card">
-      <h2>2. Rumsnummer</h2>
-      <div class="puzzle-label">Skriv rumsnumret:</div>
-      <input class="puzzle-input" id="p2-room" placeholder="t.ex. 102" type="text" autocomplete="off">
-    </div>
-    <div class="card">
-      <h2>3. Lustgasblandning</h2>
-      <div class="counter-row">
-        <label>Kvävgas (delar):</label>
-        <button class="counter-btn" onclick="adjGas('nitrous',-1)">−</button>
-        <span class="counter-val" id="nitrous-val">${gas.nitrous}</span>
-        <button class="counter-btn" onclick="adjGas('nitrous',1)">+</button>
-      </div>
-      <div class="counter-row">
-        <label>Syrgas (delar):</label>
-        <button class="counter-btn" onclick="adjGas('oxygen',-1)">−</button>
-        <span class="counter-val" id="oxygen-val">${gas.oxygen}</span>
-        <button class="counter-btn" onclick="adjGas('oxygen',1)">+</button>
-      </div>
-    </div>
-    <div class="feedback" id="p2-fb"></div>
-    <button class="btn btn-primary" onclick="checkP2()">Bekräfta allt ✓</button>`;
-
-  if (phase === 3) return `
-    <p style="font-size:14px;color:var(--text-dim);margin-bottom:12px;">Välj rätt bebis:</p>
-    <button class="btn-choice" id="baby-A" onclick="pickBaby('A')">👶 Vagn A — Blå mössa 🔵</button>
-    <button class="btn-choice" id="baby-B" onclick="pickBaby('B')">👶 Vagn B — Rosa mössa 🩷</button>
-    <div class="feedback" id="p3-fb"></div>
-    <button class="btn btn-primary" style="margin-top:8px;" onclick="checkP3()">Det är den här bebisen! 👶</button>`;
-
-  return '';
-}
-
-// Puzzle interaction
-window.pickRoom = function(val) {
-  selectedRoom = val;
-  document.querySelectorAll('[id^="choice-"]').forEach(b => b.classList.remove('selected'));
-  document.getElementById(`choice-${val}`)?.classList.add('selected');
-};
-window.pickBaby = function(val) {
-  selectedBaby = val;
-  document.querySelectorAll('[id^="baby-"]').forEach(b => b.classList.remove('selected'));
-  document.getElementById(`baby-${val}`)?.classList.add('selected');
-};
-window.adjGas = function(field, delta) {
-  gas[field] = Math.max(0, Math.min(9, gas[field] + delta));
-  document.getElementById(`${field}-val`).textContent = gas[field];
-};
-
-window.checkP1 = async function() {
-  const fb = document.getElementById('p1-fb');
-  if (!selectedRoom) { showFb(fb,'error','Välj ett rum!'); return; }
-  if (selectedRoom === 'Badrummet') {
-    showFb(fb,'success','✓ Rätt! Nyckeln hänger vid badrumsspegeln!');
-    setTimeout(() => advancePhase(2), 1400);
-  } else {
-    showFb(fb,'error',`✗ Nyckeln finns inte i ${selectedRoom}. Tänk igen…`);
-  }
-};
-window.checkP2 = async function() {
-  const fb     = document.getElementById('p2-fb');
-  const doctor = (document.getElementById('p2-doctor')?.value||'').trim().toLowerCase();
-  const room   = (document.getElementById('p2-room')?.value||'').trim().replace(/bb-?/i,'');
-  const ok = [
-    doctor.includes('lindqvist'),
-    room === '102',
-    gas.nitrous === 1 && gas.oxygen === 2,
-  ];
-  if (ok.every(Boolean)) {
-    showFb(fb,'success','✓ Perfekt! Rätt doktor, rätt rum, rätt gas. Ni är inne!');
-    setTimeout(() => advancePhase(3), 1400);
-  } else {
-    const bad = ['doktorns namn','rumsnummer','gasblandning'].filter((_,i)=>!ok[i]);
-    showFb(fb,'error',`✗ Stämmer inte: ${bad.join(', ')}`);
-  }
-};
-window.checkP3 = async function() {
-  const fb = document.getElementById('p3-fb');
-  if (!selectedBaby) { showFb(fb,'error','Välj en vagn!'); return; }
-  if (selectedBaby === 'A') {
-    showFb(fb,'success','✓ Det är er bebis! Vagn A — blå mössa, 3,2 kg, ID #1047! 👶');
-    stopTimer();
-    setTimeout(() => advancePhase('victory'), 1400);
-  } else {
-    showFb(fb,'error','✗ Det är fel bebis! Louise märker snart…');
-  }
-};
-
+// --- Feedback ---
 function showFb(el, type, msg) {
+  if (!el) return;
   el.className = `feedback ${type}`;
   el.textContent = msg;
 }
 
-// Timer
+// ============================================================
+// TIMER (endast fas 3)
+// ============================================================
 function startTimer() {
   stopTimer();
   tickTimer();
@@ -630,96 +870,27 @@ function tickTimer() {
   box.innerHTML = `<div class="timer ${cls}">${m}:${s}</div>`;
 }
 
-// --- Team ---
-function renderTeam(teamRole) {
-  const phase  = gamePhase;
-  const info   = TEAM_INFO[teamRole];
-  const clue   = CLUES[phase]?.[teamRole];
-  const isSent = clue ? !!sentClues[clue.id] : false;
-  const waitMsg = {
-    1: 'Väntar på att David hittar nyckeln…',
-    2: 'Väntar på att David löser sjukhuspusslen…',
-    3: 'Väntar på att David räddar rätt bebis…',
-  };
-
-  appEl.innerHTML = `
-    <div class="header">${info.emoji} ${info.name}<span class="phase-badge">Fas ${phase}/3</span></div>
-    ${phase === 3 ? '<div class="alert-banner alert-red">⚠️ David måste rädda bebisen NU!</div>' : ''}
-    <div class="section-label">💡 Er ledtråd (fas ${phase})</div>
-    ${clue ? `
-      <div class="team-clue ${isSent ? 'sent' : ''}">
-        <div class="clue-label">${clue.label}</div>
-        <div class="clue-preview">${clue.content}</div>
-        ${isSent
-          ? '<button class="btn btn-sent">✓ Skickat till David!</button>'
-          : `<button class="btn btn-primary" onclick="doSendClue()">📤 Skicka till David</button>`}
-      </div>` : '<div class="empty-clues">Inga ledtrådar för den här fasen.</div>'}
-    <div class="waiting">${waitMsg[phase]||''}</div>`;
-}
-window.doSendClue = async function() {
-  const clue = CLUES[gamePhase]?.[role];
-  if (clue) await sendClueToFirebase(gamePhase, role, clue);
-};
-
-// --- Admin ---
-function renderAdmin() {
-  const phase   = gamePhase;
-  const clueRows = Object.entries(sentClues)
-    .map(([id,v]) => `<span style="margin-right:10px;font-family:monospace;font-size:12px;">${id}: ${v?'✓':'–'}</span>`)
-    .join('') || '—';
-
-  appEl.innerHTML = `
-    <div class="header">🔧 Admin<span class="phase-badge">Fas ${phase==='victory'?'✓':`${phase}/3`}</span></div>
-    <div class="card">
-      <h2>Skickade ledtrådar</h2>
-      <div style="line-height:2;">${clueRows}</div>
-    </div>
-    <div class="section-label">Hoppa till fas</div>
-    <div class="admin-grid">
-      <button class="admin-btn" onclick="adminSet(1)">→ Fas 1</button>
-      <button class="admin-btn" onclick="adminSet(2)">→ Fas 2</button>
-      <button class="admin-btn" onclick="adminSet(3)">→ Fas 3</button>
-      <button class="admin-btn" onclick="adminSet('victory')">→ Victory</button>
-    </div>
-    <button class="btn btn-secondary" style="margin-top:12px;" onclick="adminReset()">🔄 Återställ spelet</button>`;
-}
-window.adminSet   = p => advancePhase(p);
-window.adminReset = async () => { if (confirm('Återställ hela spelet?')) await resetGame(); };
-
-// --- Victory ---
-function renderVictory() {
-  stopTimer();
-  appEl.innerHTML = `
-    <div class="victory">
-      <div class="big">🎉</div>
-      <h1>GRATTIS DAVID!</h1>
-      <p>Ni löste alla mysterier, navigerade sjukhuskaos och räddade rätt bebis — precis innan Louise märkte något!</p>
-      <p style="margin-top:20px;font-size:28px;">Välkommen till världen, liten! 👶</p>
-      <p style="margin-top:36px;font-size:13px;color:var(--text-dim);">Operation: Fel Bebis — slutförd ✓</p>
-    </div>`;
-}
-
 // ============================================================
 // FIREBASE LISTENERS
 // ============================================================
 function setupListeners() {
   onValue(ref(db,'game/phase'), snap => {
-    gamePhase    = snap.val() ?? 1;
-    selectedRoom = null;
-    selectedBaby = null;
+    gamePhase = snap.val() ?? 1;
+    if (gamePhase !== 3) stopTimer();
     render();
   });
-  onValue(ref(db,'game/davidClues'), snap => {
-    davidClues = snap.val() ?? {};
-    refreshDavidClues();
-  });
-  onValue(ref(db,'game/clues'), snap => {
-    sentClues = snap.val() ?? {};
-    if (role?.startsWith('team')) renderTeam(role);
+  onValue(ref(db,'game/answers'), snap => {
+    answers = snap.val() ?? {};
+    if (role === 'david') renderDavid();
     if (role === 'admin') renderAdmin();
+  });
+  onValue(ref(db,'game/teamAnswers'), snap => {
+    teamAnswers = snap.val() ?? {};
+    if (role?.startsWith('team')) renderTeam(role);
   });
   onValue(ref(db,'game/phase3Start'), snap => {
     phase3Start = snap.val();
+    if (gamePhase === 3 && role === 'david') startTimer();
   });
 }
 
